@@ -66,12 +66,13 @@ jobs:
           export OPENSSL_VERSION=${GITHUB_REF##*/v}
           export ROOTDIR="$(pwd)"
           export PERFIX_DIR="/tmp/openssl-${{ matrix.arch }}-apple-darwin"
+          mkdir -p "${PERFIX_DIR}"
           cd "openssl-${OPENSSL_VERSION}"
           mkdir build
           if [ "${{ matrix.arch }}" = "arm64" ]; then
-            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64 no-shared
+            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64
           else
-            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64 no-shared
+            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64
           fi
           make -j"$(sysctl -n hw.ncpu)" install_sw
           make -j"$(sysctl -n hw.ncpu)" install_ssldirs
