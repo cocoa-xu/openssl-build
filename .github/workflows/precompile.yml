@@ -74,6 +74,7 @@ jobs:
           else
             ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64
           fi
+          make -j"$(sysctl -n hw.ncpu)"
           make -j"$(sysctl -n hw.ncpu)" install_sw
           make -j"$(sysctl -n hw.ncpu)" install_ssldirs
           mkdir -p "${ROOTDIR}/build"
