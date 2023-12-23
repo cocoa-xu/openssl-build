@@ -1,0 +1,86 @@
+name: precompile
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x86_64, i686, aarch64, ppc64le, s390x]
+
+    name: manylinux2014_${{ matrix.arch }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Pull docker image
+        run: |
+          sudo docker pull quay.io/pypa/manylinux2014_${{ matrix.arch }}:latest
+    
+      - name: Install binfmt
+        run: |
+          sudo apt install -y binfmt-support qemu-user-static
+
+      - name: Precompile
+        run: |
+          cp .github/script-to-build-manylinux2014.sh ./
+          cp .github/do-build-manylinux2014.sh ./
+
+          bash ./script-to-build-manylinux2014.sh "${GITHUB_REF##*/v}" "${{ matrix.arch }}"
+
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openssl-*.tar.gz
+
+  macos:
+    runs-on: macos-12
+    strategy:
+      matrix:
+        arch: [x86_64, arm64]
+      fail-fast: false
+    name: ${{ matrix.arch }}-apple-darwin
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download OpenSSL Source Code
+        run: |
+          export OPENSSL_VERSION=${GITHUB_REF##*/v}
+          echo "$OPENSSL_VERSION"
+          curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+          tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz"
+
+      - name: Compile OpenSSL
+        run: |
+          export OPENSSL_VERSION=${GITHUB_REF##*/v}
+          export ROOTDIR="$(pwd)"
+          export PERFIX_DIR="/tmp/openssl-${{ matrix.arch }}-apple-darwin"
+          cd "openssl-${OPENSSL_VERSION}"
+          mkdir build
+          if [ "${{ matrix.arch }}" = "arm64" ]; then
+            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64 no-shared
+          else
+            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64 no-shared
+          fi
+          make -j"$(sysctl -n hw.ncpu)" install_sw
+          make -j"$(sysctl -n hw.ncpu)" install_ssldirs
+          mkdir -p "${ROOTDIR}/build"
+          cd "${PERFIX_DIR}"
+          tar -czf "${ROOTDIR}/build/openssl-${{ matrix.arch }}-apple-darwin.tar.gz" .
+
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            build/*.tar.gz
