@@ -8,16 +8,20 @@ TRIPLET=$3
 PERFIX_DIR="/openssl-${TRIPLET}"
 
 case $TRIPLET in
-    *-linux-gnu* )
-         yum install -y curl openssl-devel ncurses-devel perl-IPC-Cmd python3
-         ;;
-    *-linux-musl* )
-         apk add make curl gcc g++ perl linux-headers
-         ;;
-    * )
-         echo "Unknown triplet: ${TRIPLET}"
-         exit 1
-         ;;
+     riscv64-linux-gnu )
+          apt-get update && \
+               apt-get install -y curl automake autoconf libssl-dev libncurses5-dev perl python3
+          ;;
+     *-linux-gnu* )
+          yum install -y curl automake autoconf openssl-devel ncurses-devel perl-IPC-Cmd python3
+          ;;
+     *-linux-musl* )
+          apk add make curl gcc g++ perl linux-headers
+          ;;
+     * )
+          echo "Unknown triplet: ${TRIPLET}"
+          exit 1
+          ;;
 esac
 
 mkdir -p "${PERFIX_DIR}" && \
