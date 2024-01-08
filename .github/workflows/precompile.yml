@@ -52,16 +52,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Setup
+        run: |
+          apk add make curl gcc g++ perl ncurses-dev linux-headers
+
       - name: Download OpenSSL Source Code
         run: |
           export OPENSSL_VERSION=${GITHUB_REF##*/v}
           echo "$OPENSSL_VERSION"
           curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
           tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz"
-
-      - name: Setup
-        run: |
-          apk add make curl gcc g++ perl ncurses-dev linux-headers
 
       - name: Compile OpenSSL
         run: |
