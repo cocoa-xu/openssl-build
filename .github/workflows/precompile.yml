@@ -22,7 +22,7 @@ jobs:
     name: ${{ matrix.arch }}-linux-gnu
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Pull docker image
         run: |
@@ -58,7 +58,7 @@ jobs:
     name: ${{ matrix.arch }}-linux-musl
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Pull docker image
         run: |
@@ -110,7 +110,8 @@ jobs:
       fail-fast: false
     name: ${{ matrix.arch }}-apple-darwin
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Download OpenSSL Source Code
         run: |
           export OPENSSL_VERSION=${GITHUB_REF##*/v}
