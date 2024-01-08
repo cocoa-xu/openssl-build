@@ -179,9 +179,9 @@ jobs:
           cd "openssl-${OPENSSL_VERSION}"
           mkdir build
           if [ "${{ matrix.arch }}" = "arm64" ]; then
-            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64
+            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64 no-tests
           else
-            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64
+            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64 no-tests
           fi
           make -j"$(sysctl -n hw.ncpu)"
           make -j"$(sysctl -n hw.ncpu)" install_sw
