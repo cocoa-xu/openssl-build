@@ -93,9 +93,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - pair: 
-              zig-arch: i386
-              openssl-arch: linux-generic32
           - pair:
               zig-arch: aarch64
               openssl-arch: linux-aarch64
