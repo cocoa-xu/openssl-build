@@ -10,12 +10,12 @@ PERFIX_DIR="/openssl-${TRIPLET}"
 case $TRIPLET in
      riscv64-linux-gnu )
           apt-get update && \
-               apt-get install -y curl automake autoconf libssl-dev libncurses5-dev perl python3
+               apt-get install -y curl automake autoconf libncurses5-dev perl python3
           ;;
-     *-linux-gnu* )
+     *-linux-gnu )
           yum install -y curl automake autoconf openssl-devel ncurses-devel perl-IPC-Cmd python3
           ;;
-     *-linux-musl* )
+     *-linux-musl )
           apk add make curl gcc g++ perl linux-headers
           ;;
      * )
