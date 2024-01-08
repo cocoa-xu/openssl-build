@@ -102,12 +102,6 @@ jobs:
           - pair:
               zig-arch: riscv64
               openssl-arch: linux64-riscv64
-          - pair:
-              zig-arch: ppc64le
-              openssl-arch: linux-ppc64le
-          - pair:
-              zig-arch: s390x
-              openssl-arch: linux64-s390x
     name: ${{ matrix.pair.zig-arch }}-linux-musl
 
     steps:
