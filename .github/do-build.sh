@@ -24,10 +24,19 @@ mkdir -p "${PERFIX_DIR}" && \
     cd / && \
     curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz && \
     tar xf openssl-${OPENSSL_VERSION}.tar.gz && \
-    cd openssl-${OPENSSL_VERSION} && \
-    ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests && \
-    make -j`nproc` && \
-    make -j`nproc` install_sw && \
-    make -j`nproc` install_ssldirs && \
-    cd "/openssl-${TRIPLET}" && \
-    tar -czf "/work/openssl-${TRIPLET}.tar.gz" .
+    cd openssl-${OPENSSL_VERSION}
+
+case $TRIPLET in
+     *i386* )
+          ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests linux-generic32 -m32
+          ;;
+     * )
+          ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+          ;;
+esac
+
+make -j`nproc` && \
+     make -j`nproc` install_sw && \
+     make -j`nproc` install_ssldirs && \
+     cd "/openssl-${TRIPLET}" && \
+     tar -czf "/work/openssl-${TRIPLET}.tar.gz" .
