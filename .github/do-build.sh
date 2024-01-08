@@ -9,7 +9,7 @@ PERFIX_DIR="/openssl-${TRIPLET}"
 
 case $TRIPLET in
     *-linux-gnu* )
-         yum install -y openssl-devel ncurses-devel perl-IPC-Cmd python3
+         yum install -y curl openssl-devel ncurses-devel perl-IPC-Cmd python3
          ;;
     *-linux-musl* )
          apk add make curl gcc g++ perl linux-headers
