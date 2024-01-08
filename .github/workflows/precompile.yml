@@ -35,7 +35,7 @@ jobs:
       - name: Precompile
         run: |
           cp .github/script-to-build-manylinux2014.sh ./
-          cp .github/do-build-manylinux2014.sh ./
+          cp .github/do-build.sh ./
 
           bash ./script-to-build-manylinux2014.sh "${GITHUB_REF##*/v}" "${{ matrix.arch }}"
 
@@ -71,7 +71,7 @@ jobs:
       - name: Precompile
         run: |
           cp .github/script-to-build-alpine.sh ./
-          cp .github/do-build-alpine.sh ./
+          cp .github/do-build.sh ./
 
           if [ "${{ matrix.arch }}" = "riscv64" ]; then
             bash ./script-to-build-alpine.sh "${GITHUB_REF##*/v}" "${{ matrix.arch }}" "alpine:edge"
