@@ -13,13 +13,13 @@ permissions:
   contents: write
 
 jobs:
-  linux:
+  linux-gnu:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         arch: [x86_64, i686, aarch64, ppc64le, s390x]
 
-    name: manylinux2014_${{ matrix.arch }}
+    name: ${{ matrix.arch }}-linux-gnu
 
     steps:
       - uses: actions/checkout@v3
@@ -45,105 +45,45 @@ jobs:
           files: |
             openssl-*.tar.gz
 
-  alpine:
+  linux-musl:
     runs-on: ubuntu-latest
-    container: alpine:latest
-    name: x86_64-linux-musl
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup
-        run: |
-          apk add make curl gcc g++ perl ncurses-dev linux-headers
-
-      - name: Download OpenSSL Source Code
-        run: |
-          export OPENSSL_VERSION=${GITHUB_REF##*/v}
-          echo "$OPENSSL_VERSION"
-          curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
-          tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz"
-
-      - name: Compile OpenSSL
-        run: |
-          export OPENSSL_VERSION=${GITHUB_REF##*/v}
-          export ROOTDIR="$(pwd)"
-          export PERFIX_DIR="/tmp/openssl-x86_64-linux-musl"
-          mkdir -p "${PERFIX_DIR}"
-          cd "openssl-${OPENSSL_VERSION}"
-          mkdir build
-          ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-x86_64 no-tests
-          make -j"$(nproc)"
-          make -j"$(nproc)" install_sw
-          make -j"$(nproc)" install_ssldirs
-          mkdir -p "${ROOTDIR}/build"
-          cd "${PERFIX_DIR}"
-          tar -czf "${ROOTDIR}/build/openssl-x86_64-linux-musl.tar.gz" .
-
-      - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            build/*.tar.gz
-
-  zig_build_musl:
-    runs-on: ubuntu-latest
-    env:
-      ZIG_VERSION: "0.8.0"
     strategy:
-      fail-fast: false
       matrix:
-        include:
-          - pair:
-              zig-arch: aarch64
-              openssl-arch: linux-aarch64
-          - pair:
-              zig-arch: riscv64
-              openssl-arch: linux64-riscv64
-    name: ${{ matrix.pair.zig-arch }}-linux-musl
+        arch: [x86_64, i686, aarch64, riscv64, ppc64le, s390x]
+
+    name: ${{ matrix.arch }}-linux-musl
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download OpenSSL Source Code
+      - name: Pull docker image
         run: |
-          export OPENSSL_VERSION=${GITHUB_REF##*/v}
-          echo "$OPENSSL_VERSION"
-          curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
-          tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz"
-      
-      - name: Install Zig
-        uses: goto-bus-stop/setup-zig@v1
-        with:
-          version: ${{ env.ZIG_VERSION }}
+          if [ "${{ matrix.arch }}" = "riscv64" ]; then
+            sudo docker pull --platform=linux/${{ matrix.arch }} alpine:edge
+          else
+            sudo docker pull --platform=linux/${{ matrix.arch }} alpine:latest
+          fi
 
-      - name: Install system dependencies
+      - name: Install binfmt
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential automake autoconf pkg-config bc m4 unzip zip curl git libssl-dev gzip libncurses5-dev ca-certificates
+          sudo apt install -y binfmt-support qemu-user-static
 
-      - name: Compile OpenSSL
+      - name: Precompile
         run: |
-          export OPENSSL_VERSION=${GITHUB_REF##*/v}
-          export ROOTDIR="$(pwd)"
-          export PERFIX_DIR="/tmp/openssl-${{ matrix.pair.zig-arch }}-linux-musl"
-          mkdir -p "${PERFIX_DIR}"
-          cd "openssl-${OPENSSL_VERSION}"
-          mkdir build
-          export CC="zig cc -target ${{ matrix.pair.zig-arch }}-linux-musl"
-          export CXX="zig c++ -target ${{ matrix.pair.zig-arch }}-linux-musl"
-          ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" ${{ matrix.pair.openssl-arch }} no-tests
-          make -j"$(nproc)"
-          make -j"$(nproc)" install_sw
-          make -j"$(nproc)" install_ssldirs
-          mkdir -p "${ROOTDIR}/build"
-          cd "${PERFIX_DIR}"
-          tar -czf "${ROOTDIR}/build/openssl-${{ matrix.pair.zig-arch }}-linux-musl.tar.gz" .
+          cp .github/script-to-build-alpine.sh ./
+          cp .github/do-build-alpine.sh ./
+
+          if [ "${{ matrix.arch }}" = "riscv64" ]; then
+            bash ./script-to-build-alpine.sh "${GITHUB_REF##*/v}" "${{ matrix.arch }}" "alpine:edge"
+          else
+            bash ./script-to-build-alpine.sh "${GITHUB_REF##*/v}" "${{ matrix.arch }}" "alpine:latest"
+          fi
 
       - uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            build/*.tar.gz
+            openssl-*.tar.gz
 
   macos:
     runs-on: macos-12

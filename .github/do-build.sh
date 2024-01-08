@@ -4,10 +4,23 @@ set -x
 
 OPENSSL_VERSION=$1
 ARCH=$2
-PERFIX_DIR="/openssl-${ARCH}-linux-gnu"
+TRIPLET=$3
+PERFIX_DIR="/openssl-${TRIPLET}"
+
+case $TRIPLET in
+    *-linux-gnu* )
+         yum install -y openssl-devel ncurses-devel perl-IPC-Cmd python3
+         ;;
+    *-linux-musl* )
+         apk add make curl gcc g++ perl linux-headers
+         ;;
+    * )
+         echo "Unknown triplet: ${TRIPLET}"
+         exit 1
+         ;;
+esac
 
 mkdir -p "${PERFIX_DIR}" && \
-    yum install -y openssl-devel ncurses-devel perl-IPC-Cmd python3 && \
     cd / && \
     curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz && \
     tar xf openssl-${OPENSSL_VERSION}.tar.gz && \
@@ -16,5 +29,5 @@ mkdir -p "${PERFIX_DIR}" && \
     make -j`nproc` && \
     make -j`nproc` install_sw && \
     make -j`nproc` install_ssldirs && \
-    cd "/openssl-${ARCH}-linux-gnu" && \
-    tar -czf "/work/openssl-${ARCH}-linux-gnu.tar.gz" .
+    cd "/openssl-${TRIPLET}" && \
+    tar -czf "/work/openssl-${TRIPLET}.tar.gz" .
