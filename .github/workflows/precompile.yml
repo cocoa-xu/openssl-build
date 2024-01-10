@@ -321,9 +321,11 @@ jobs:
       - name: deploy
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'cocoa-xu/openssl-build'
         env:
-          DEPLOY_FREEBSD_HOOK_URL: ${{ secrets.DEPLOY_FREEBSD_HOOK_URL }}
+          DEPLOY_FREEBSD13_HOOK_URL: ${{ secrets.DEPLOY_FREEBSD13_HOOK_URL }}
+          DEPLOY_FREEBSD14_HOOK_URL: ${{ secrets.DEPLOY_FREEBSD14_HOOK_URL }}
         run: |
-          curl -sS --no-progress-meter "${DEPLOY_FREEBSD_HOOK_URL}${{ github.ref_name }}"
+          curl -sS --no-progress-meter "${DEPLOY_FREEBSD13_HOOK_URL}${{ github.ref_name }}"
+          curl -sS --no-progress-meter "${DEPLOY_FREEBSD14_HOOK_URL}${{ github.ref_name }}"
 
   deploy-openbsd:
     runs-on: ubuntu-latest
@@ -332,9 +334,9 @@ jobs:
       - name: deploy
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'cocoa-xu/openssl-build'
         env:
-          DEPLOY_OPENBSD_HOOK_URL: ${{ secrets.DEPLOY_OPENBSD_HOOK_URL }}
+          DEPLOY_OPENBSD7_HOOK_URL: ${{ secrets.DEPLOY_OPENBSD7_HOOK_URL }}
         run: |
-          curl -sS --no-progress-meter "${DEPLOY_OPENBSD_HOOK_URL}${{ github.ref_name }}"
+          curl -sS --no-progress-meter "${DEPLOY_OPENBSD7_HOOK_URL}${{ github.ref_name }}"
 
   deploy-netbsd:
     runs-on: ubuntu-latest
@@ -343,6 +345,6 @@ jobs:
       - name: deploy
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'cocoa-xu/openssl-build'
         env:
-          DEPLOY_NETBSD_HOOK_URL: ${{ secrets.DEPLOY_NETBSD_HOOK_URL }}
+          DEPLOY_NETBSD9_HOOK_URL: ${{ secrets.DEPLOY_NETBSD9_HOOK_URL }}
         run: |
-          curl -sS --no-progress-meter "${DEPLOY_NETBSD_HOOK_URL}${{ github.ref_name }}"
+          curl -sS --no-progress-meter "${DEPLOY_NETBSD9_HOOK_URL}${{ github.ref_name }}"
