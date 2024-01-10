@@ -336,9 +336,10 @@ jobs:
           release: ${{ matrix.pair.fullversion }}
           usesh: true
           prepare: |
-            pkgutil -y -i curl
+            pkgutil -y -i curl clang
 
           run: |
+            export LC_ALL=C
             export ROOT_DIR="$(pwd)"
             export TRIPLET=x86_64-unknown-solaris${{ matrix.pair.major }}
             export OPENSSL_VERSION="${GITHUB_REF##*/v}"
@@ -349,9 +350,9 @@ jobs:
             rm -f openssl-${OPENSSL_VERSION}.tar.gz
             cd openssl-${OPENSSL_VERSION}
             ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
-            make -j2
-            make -j2 install_sw
-            make -j2 install_ssldirs
+            make -j`psrinfo -p`
+            make -j`psrinfo -p` install_sw
+            make -j`psrinfo -p` install_ssldirs
             cd "/openssl-${TRIPLET}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
