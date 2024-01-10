@@ -302,9 +302,9 @@ jobs:
             rm -f openssl-${OPENSSL_VERSION}.tar.gz
             cd openssl-${OPENSSL_VERSION}
             ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
-            make -j`getconf _NPROCESSORS_ONLN`
-            make -j`getconf _NPROCESSORS_ONLN` install_sw
-            make -j`getconf _NPROCESSORS_ONLN` install_ssldirs
+            make -j2
+            make -j2 install_sw
+            make -j2 install_ssldirs
             cd "/openssl-${TRIPLET}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
@@ -349,9 +349,9 @@ jobs:
             rm -f openssl-${OPENSSL_VERSION}.tar.gz
             cd openssl-${OPENSSL_VERSION}
             ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
-            make -j`getconf _NPROCESSORS_ONLN`
-            make -j`getconf _NPROCESSORS_ONLN` install_sw
-            make -j`getconf _NPROCESSORS_ONLN` install_ssldirs
+            make -j2
+            make -j2 install_sw
+            make -j2 install_ssldirs
             cd "/openssl-${TRIPLET}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
