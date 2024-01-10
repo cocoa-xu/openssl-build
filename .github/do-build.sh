@@ -39,8 +39,8 @@ case $TRIPLET in
           ;;
 esac
 
-make -j`nproc` && \
-     make -j`nproc` install_sw && \
-     make -j`nproc` install_ssldirs && \
+make -j$(nproc) && \
+     make -j$(nproc) install_sw && \
+     make -j$(nproc) install_ssldirs && \
      cd "/openssl-${TRIPLET}" && \
      tar -czf "/work/openssl-${TRIPLET}.tar.gz" .
