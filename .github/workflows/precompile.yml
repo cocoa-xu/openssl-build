@@ -289,7 +289,7 @@ jobs:
           release: ${{ matrix.pair.fullversion }}
           usesh: true
           prepare: |
-            /usr/sbin/pkg_add curl perl
+            pkg_add curl perl
 
           run: |
             export ROOT_DIR="$(pwd)"
