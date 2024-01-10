@@ -155,3 +155,208 @@ jobs:
           DEPLOY_MACOS_HOOK_URL: ${{ secrets.DEPLOY_MACOS_HOOK_URL }}
         run: |
           curl -sS --no-progress-meter "${DEPLOY_MACOS_HOOK_URL}${{ github.ref_name }}"
+
+  freebsd:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - pair:
+              fullversion: "13.2"
+              major: "13"
+          - pair:
+              fullversion: "14.0"
+              major: "14"
+      fail-fast: false
+
+    name: x86_64-unknown-freebsd${{ matrix.pair.major }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile in FreeBSD
+        id: compile-freebsd
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: ${{ matrix.pair.fullversion }}
+          usesh: true
+          prepare: |
+            pkg install -y curl perl5
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET=x86_64-unknown-freebsd${{ matrix.pair.major }}
+            export OPENSSL_VERSION="${GITHUB_REF##*/v}"
+            export PERFIX_DIR=/openssl-${TRIPLET}
+            curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+            tar xf openssl-${OPENSSL_VERSION}.tar.gz
+            rm -f openssl-${OPENSSL_VERSION}.tar.gz
+            cd openssl-${OPENSSL_VERSION}
+            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+            make -j`nproc`
+            make -j`nproc` install_sw
+            make -j`nproc` install_ssldirs
+            cd "/openssl-${TRIPLET}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openssl-*.tar.gz
+
+  openbsd:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - pair:
+              fullversion: "7.2"
+              major: "7"
+          # - pair:
+          #     fullversion: "7.3"
+          #     major: "7"
+          # - pair:
+          #     fullversion: "7.4"
+          #     major: "7"
+      fail-fast: false
+
+    name: x86_64-unknown-openbsd${{ matrix.pair.fullversion }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile in OpenBSD
+        id: compile-openbsd
+        uses: vmactions/openbsd-vm@v1
+        with:
+          release: ${{ matrix.pair.fullversion }}
+          usesh: true
+          prepare: |
+            pkg_add curl
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET=x86_64-unknown-openbsd${{ matrix.pair.major }}
+            export OPENSSL_VERSION="${GITHUB_REF##*/v}"
+            export PERFIX_DIR=/openssl-${TRIPLET}
+            mkdir -p "${PERFIX_DIR}"
+            curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+            tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
+            rm -f openssl-${OPENSSL_VERSION}.tar.gz
+            cd openssl-${OPENSSL_VERSION}
+            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+            make -j`getconf _NPROCESSORS_ONLN`
+            make -j`getconf _NPROCESSORS_ONLN` install_sw
+            make -j`getconf _NPROCESSORS_ONLN` install_ssldirs
+            cd "/openssl-${TRIPLET}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openssl-*.tar.gz
+
+  netbsd:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - pair:
+              fullversion: "9.0"
+              major: "9"
+          # - pair:
+          #     fullversion: "9.1"
+          #     major: "9"
+          # - pair:
+          #     fullversion: "9.2"
+          #     major: "9"
+          # - pair:
+          #     fullversion: "9.3"
+          #     major: "9"
+      fail-fast: false
+
+    name: x86_64-unknown-netbsd${{ matrix.pair.fullversion }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile in NetBSD
+        id: compile-netbsd
+        uses: vmactions/netbsd-vm@v1
+        with:
+          release: ${{ matrix.pair.fullversion }}
+          usesh: true
+          prepare: |
+            /usr/sbin/pkg_add curl
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET=x86_64-unknown-netbsd${{ matrix.pair.major }}
+            export OPENSSL_VERSION="${GITHUB_REF##*/v}"
+            export PERFIX_DIR=/openssl-${TRIPLET}
+            mkdir -p "${PERFIX_DIR}"
+            curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+            tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
+            rm -f openssl-${OPENSSL_VERSION}.tar.gz
+            cd openssl-${OPENSSL_VERSION}
+            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+            make -j`getconf _NPROCESSORS_ONLN`
+            make -j`getconf _NPROCESSORS_ONLN` install_sw
+            make -j`getconf _NPROCESSORS_ONLN` install_ssldirs
+            cd "/openssl-${TRIPLET}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openssl-*.tar.gz
+
+  solaris:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - pair:
+              fullversion: "11.4"
+              major: "11"
+      fail-fast: false
+
+    name: x86_64-unknown-solaris${{ matrix.pair.fullversion }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile in Solaris
+        id: compile-solaris
+        uses: vmactions/solaris-vm@v1
+        with:
+          release: ${{ matrix.pair.fullversion }}
+          usesh: true
+          prepare: |
+            pkgutil -y -i curl
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET=x86_64-unknown-solaris${{ matrix.pair.major }}
+            export OPENSSL_VERSION="${GITHUB_REF##*/v}"
+            export PERFIX_DIR=/openssl-${TRIPLET}
+            mkdir -p "${PERFIX_DIR}"
+            curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+            tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
+            rm -f openssl-${OPENSSL_VERSION}.tar.gz
+            cd openssl-${OPENSSL_VERSION}
+            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+            make -j`getconf _NPROCESSORS_ONLN`
+            make -j`getconf _NPROCESSORS_ONLN` install_sw
+            make -j`getconf _NPROCESSORS_ONLN` install_ssldirs
+            cd "/openssl-${TRIPLET}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openssl-*.tar.gz
