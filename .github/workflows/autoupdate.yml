@@ -1,0 +1,37 @@
+name: auto-update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  auto-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AUTO_UPDATE_TOKEN }}
+
+      - name: Get latest version
+        id: openssl-version
+        run: |
+          pip3 install -U lastversion
+          OPENSSL_VERSION=$(lastversion openssl)
+          echo "tag=v${OPENSSL_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists
+        uses: mukunku/tag-exists-action@v1.5.0
+        id: check-tag
+        with: 
+          tag: ${{ steps.openssl-version.outputs.tag }}
+          repo: 'cocoa-xu/openssl-build'
+      
+      - name: Update if tag not exists
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag ${{ steps.openssl-version.outputs.tag }}
+          git push origin ${{ steps.openssl-version.outputs.tag }}
