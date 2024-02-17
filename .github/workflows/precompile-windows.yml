@@ -84,7 +84,6 @@ jobs:
           tar -czf ".\openssl-${{ matrix.pair.arch }}-windows-msvc.tar.gz" -C c:\openssl .
 
       - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           tag_name: ${{ github.event.inputs.openssl_verison }}
           name: ${{ github.event.inputs.openssl_verison }}
