@@ -397,11 +397,12 @@ jobs:
           $env:Path = "C:\perl\bin;" + $env:Path
           cmd.exe /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
 
-          if [ "${{ matrix.pair.arch }}" = "aarch64" ]; then
+          if ( "${{ matrix.pair.arch }}" -eq "aarch64" ) {
             perl Configure VC-WIN64-ARM no-tests --prefix=C:\openssl --openssldir=C:\openssl
-          else
+          } else {
             perl Configure VC-WIN64A no-tests --prefix=C:\openssl --openssldir=C:\openssl
-          fi
+          }
+
           nmake
           nmake install
 
