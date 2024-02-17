@@ -25,9 +25,21 @@ jobs:
           - pair:
               arch: "x86_64"
               vcvarsall: "x64"
+              shared: static
+          - pair:
+              arch: "x86_64"
+              vcvarsall: "x64"
+              shared: shared
           - pair:
               arch: "aarch64"
               vcvarsall: "amd64_arm64"
+              shared: static
+          - pair:
+              arch: "aarch64"
+              vcvarsall: "amd64_arm64"
+              shared: shared
+
+    name: ${{ matrix.pair.arch }}-windows-msvc / ${{ matrix.pair.shared }}
 
     steps:
       - uses: ilammy/msvc-dev-cmd@v1
@@ -68,20 +80,27 @@ jobs:
           cd "openssl-${OPENSSL_VERSION}"
           $env:Path = "C:\perl\bin;" + $env:Path
 
+          if ( "${{ matrix.pair.shared }}" -eq "shared" ) {
+            $lib_type = "shared"
+          } else {
+            $lib_type = "no-shared"
+          }
+
           if ( "${{ matrix.pair.arch }}" -eq "aarch64" ) {
             cmd.exe /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
-            perl Configure VC-WIN64-ARM no-tests --prefix=C:\openssl --openssldir=C:\openssl
+            perl Configure VC-WIN64-ARM no-tests $lib_type --prefix=C:\OpenSSL-Win64 --openssldir=C:\OpenSSL-Win64
           } else {
             $env:Path = "C:\nasm\nasm-2.16.01;" + $env:Path
-            perl Configure VC-WIN64A no-tests --prefix=C:\openssl --openssldir=C:\openssl
+            perl Configure VC-WIN64A no-tests $lib_type --prefix=C:\OpenSSL-Win64 --openssldir=C:\OpenSSL-Win64
           }
 
           nmake
-          nmake install
+          nmake install_sw
+          nmake install_ssldirs
 
       - name: Create tarballs
         run: |
-          tar -czf ".\openssl-${{ matrix.pair.arch }}-windows-msvc.tar.gz" -C c:\openssl .
+          tar -czf ".\openssl-${{ matrix.pair.shared }}-${{ matrix.pair.arch }}-windows-msvc.tar.gz" -C C:\OpenSSL-Win64 .
 
       - uses: softprops/action-gh-release@v1
         with:
