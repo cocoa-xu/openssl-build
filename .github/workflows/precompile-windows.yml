@@ -52,7 +52,7 @@ jobs:
           curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
           tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz"
           rm -rf openssl-${OPENSSL_VERSION}.tar.gz
-          
+
           if [ "${{ matrix.pair.arch }}" = "x86_64" ]; then
             curl -fSL "https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/nasm-2.16.01-win64.zip" -o "nasm-2.16.01-win64.zip"
             unzip -q "nasm-2.16.01-win64.zip" -d /c/nasm
@@ -78,10 +78,6 @@ jobs:
 
           nmake
           nmake install
-
-      - name: Setup tmate session
-        if: always()
-        uses: mxschmitt/action-tmate@v3
 
       - name: Create tarballs
         run: |
