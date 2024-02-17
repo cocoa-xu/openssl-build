@@ -350,3 +350,78 @@ jobs:
           DEPLOY_NETBSD9_HOOK_URL: ${{ secrets.DEPLOY_NETBSD9_HOOK_URL }}
         run: |
           curl -sS --no-progress-meter "${DEPLOY_NETBSD9_HOOK_URL}${{ github.ref_name }}"
+
+  windows:
+    runs-on: windows-2019
+    env:
+      PERL5_VERSION: "5.38.2"
+    strategy:
+      matrix:
+        include:
+          - pair:
+              arch: "x86_64"
+              vcvarsall: "x64"
+          - pair:
+              arch: "aarch64"
+              vcvarsall: "amd64_arm64"
+
+    steps:
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.pair.vcvarsall }}
+
+      - name: Download Precompiled Perl5
+        shell: bash
+        run: |
+          curl -fSL https://github.com/cocoa-xu/perl-windows-build/releases/download/v${PERL5_VERSION}/perl-x86_64-windows-msvc.tar.gz -o perl-x86_64-windows-msvc.tar.gz
+          echo "Perl 5 Version: $PERL5_VERSION"
+          mkdir -p /c/perl
+          tar -xzf perl-x86_64-windows-msvc.tar.gz -C /c/perl 2>/dev/null
+
+      - name: Download OpenSSL Source Code
+        shell: bash
+        run: |
+          export OPENSSL_VERSION=${GITHUB_REF##*/v}
+          echo "OpenSSL Version: $OPENSSL_VERSION"
+          curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+          tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz"
+          rm -rf openssl-${OPENSSL_VERSION}.tar.gz
+
+          # Remove the link command to avoid conflict with the Windows built-in command
+          mv /usr/bin/link /usr/bin/link_bak || true
+
+      - name: Compile OpenSSL
+        run: |
+          $OPENSSL_VERSION = ($env:GITHUB_REF).Replace("refs/tags/v", "")
+          cd "openssl-${OPENSSL_VERSION}"
+          $env:Path = "C:\perl\bin;" + $env:Path
+          cmd.exe /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
+
+          if [ "${{ matrix.pair.arch }}" = "aarch64" ]; then
+            perl Configure VC-WIN64-ARM no-tests --prefix=C:\openssl --openssldir=C:\openssl
+          else
+            perl Configure VC-WIN64A no-tests --prefix=C:\openssl --openssldir=C:\openssl
+          fi
+          nmake
+          nmake install
+
+      - name: Create tarballs
+        run: |
+          tar -czf ".\openssl-${{ matrix.pair.arch }}-windows-msvc.tar.gz" -C c:\openssl .
+
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openssl-*.tar.gz
+
+  deploy-windows:
+    runs-on: ubuntu-latest
+    needs: windows
+    steps:
+      - name: deploy
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'cocoa-xu/openssl-build'
+        env:
+          DEPLOY_WINDOWS_HOOK_URL: ${{ secrets.DEPLOY_WINDOWS_HOOK_URL }}
+        run: |
+          curl -sS --no-progress-meter "${DEPLOY_WINDOWS_HOOK_URL}${{ github.ref_name }}"
