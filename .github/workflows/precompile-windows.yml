@@ -72,6 +72,10 @@ jobs:
           nmake
           nmake install
 
+      - name: Setup tmate session
+        if: always()
+        uses: mxschmitt/action-tmate@v3
+
       - name: Create tarballs
         run: |
           tar -czf ".\openssl-${{ matrix.pair.arch }}-windows-msvc.tar.gz" -C c:\openssl .
