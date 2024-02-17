@@ -61,9 +61,9 @@ jobs:
           $OPENSSL_VERSION = Get-Content -Path C:\openssl_version.txt
           cd "openssl-${OPENSSL_VERSION}"
           $env:Path = "C:\perl\bin;" + $env:Path
-          cmd.exe /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
 
           if ( "${{ matrix.pair.arch }}" -eq "aarch64" ) {
+            cmd.exe /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
             perl Configure VC-WIN64-ARM no-tests --prefix=C:\openssl --openssldir=C:\openssl
           } else {
             perl Configure VC-WIN64A no-tests --prefix=C:\openssl --openssldir=C:\openssl
@@ -71,10 +71,6 @@ jobs:
 
           nmake
           nmake install
-
-      - name: Setup tmate session
-        if: always()
-        uses: mxschmitt/action-tmate@v3
 
       - name: Create tarballs
         run: |
