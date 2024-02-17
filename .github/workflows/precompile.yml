@@ -387,6 +387,12 @@ jobs:
           tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz"
           rm -rf openssl-${OPENSSL_VERSION}.tar.gz
 
+          if [ "${{ matrix.pair.arch }}" = "x86_64" ]; then
+            curl -fSL "https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/nasm-2.16.01-win64.zip" -o "nasm-2.16.01-win64.zip"
+            unzip -q "nasm-2.16.01-win64.zip" -d /c/nasm
+            rm -rf nasm-2.16.01-win64.zip
+          fi
+
           # Remove the link command to avoid conflict with the Windows built-in command
           mv /usr/bin/link /usr/bin/link_bak || true
 
@@ -395,11 +401,12 @@ jobs:
           $OPENSSL_VERSION = ($env:GITHUB_REF).Replace("refs/tags/v", "")
           cd "openssl-${OPENSSL_VERSION}"
           $env:Path = "C:\perl\bin;" + $env:Path
-          cmd.exe /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
 
           if ( "${{ matrix.pair.arch }}" -eq "aarch64" ) {
+            cmd.exe /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
             perl Configure VC-WIN64-ARM no-tests --prefix=C:\openssl --openssldir=C:\openssl
           } else {
+            $env:Path = "C:\nasm\nasm-2.16.01;" + $env:Path
             perl Configure VC-WIN64A no-tests --prefix=C:\openssl --openssldir=C:\openssl
           }
 
