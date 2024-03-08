@@ -213,11 +213,8 @@ jobs:
       matrix:
         include:
           - pair:
-              fullversion: "7.2"
+              fullversion: "7.3"
               major: "7"
-          # - pair:
-          #     fullversion: "7.3"
-          #     major: "7"
           # - pair:
           #     fullversion: "7.4"
           #     major: "7"
