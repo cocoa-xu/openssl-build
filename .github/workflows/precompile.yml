@@ -135,11 +135,20 @@ jobs:
           mkdir -p "${PERFIX_DIR}"
           cd "openssl-${OPENSSL_VERSION}"
           mkdir build
-          if [ "${{ matrix.arch }}" = "arm64" ]; then
-            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64 no-tests
-          else
-            ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64 no-tests
+          if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
+            if [ "${{ matrix.arch }}" = "arm64" ]; then
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64 no-tests
+            else
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64 no-tests
+            fi
+          elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
+            if [ "${{ matrix.arch }}" = "arm64" ]; then
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64-cc
+            else
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64-cc
+            fi
           fi
+          
           make -j"$(sysctl -n hw.ncpu)"
           make -j"$(sysctl -n hw.ncpu)" install_sw
           make -j"$(sysctl -n hw.ncpu)" install_ssldirs

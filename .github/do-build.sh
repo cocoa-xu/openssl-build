@@ -35,14 +35,25 @@ fi
 tar xf openssl-${OPENSSL_VERSION}.tar.gz
 cd openssl-${OPENSSL_VERSION}
 
-case $TRIPLET in
-     *i386* )
-          ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests linux-generic32 -m32
-          ;;
-     * )
-          ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
-          ;;
-esac
+if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
+     case $TRIPLET in
+          *i386* )
+               ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests linux-generic32 -m32
+               ;;
+          * )
+               ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+               ;;
+     esac
+elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
+     case $TRIPLET in
+          *i386* )
+               ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic32 -m32
+               ;;
+          * )
+               ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}"
+               ;;
+     esac
+fi
 
 make -j$(nproc) && \
      make -j$(nproc) install_sw && \
