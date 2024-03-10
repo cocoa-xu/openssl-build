@@ -26,9 +26,9 @@ esac
 
 mkdir -p "${PERFIX_DIR}"
 cd /
-if [ "${OPENSSL_VERSION}" == 3.* ]; then
+if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
      curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
-elif [ "${OPENSSL_VERSION}" == 1.1.1* ]; then
+elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
      curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
 fi
 
