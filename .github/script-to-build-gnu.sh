@@ -11,4 +11,4 @@ if [ "${ARCH}" = "riscv64" ]; then
 fi
 
 sudo docker run --privileged --network=host --rm -v $(pwd):/work "${IMAGE_NAME}" \
-    sh -c "chmod a+x /work/do-build.sh && /work/do-build.sh ${OPENSSL_VERSION} ${ARCH} ${ARCH}-linux-gnu"
+    bash -c "chmod a+x /work/do-build.sh && /work/do-build.sh ${OPENSSL_VERSION} ${ARCH} ${ARCH}-linux-gnu"

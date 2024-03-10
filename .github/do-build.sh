@@ -26,11 +26,18 @@ esac
 
 mkdir -p "${PERFIX_DIR}"
 cd /
-if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
-     curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
-elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
-     curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
-fi
+case $OPENSSL_VERSION in
+     3.* )
+          curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+          ;;
+     1.1.1* )
+          curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+          ;;
+     * )
+          echo "Unknown version: ${OPENSSL_VERSION}"
+          exit 1
+          ;;
+esac
 
 tar xf openssl-${OPENSSL_VERSION}.tar.gz
 cd openssl-${OPENSSL_VERSION}
@@ -55,6 +62,10 @@ case $OPENSSL_VERSION in
                     ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
                     ;;
           esac
+          ;;
+     * )
+          echo "Unknown version: ${OPENSSL_VERSION}"
+          exit 1
           ;;
 esac
 
