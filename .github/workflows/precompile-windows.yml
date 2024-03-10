@@ -61,7 +61,11 @@ jobs:
           export OPENSSL_VERSION=${OPENSSL_VERSION#v}
           echo "OpenSSL Version: $OPENSSL_VERSION"
           echo -n "$OPENSSL_VERSION" > /c/openssl_version.txt
-          curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+          if [ "${OPENSSL_VERSION}" == 3.* ]; then
+            curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+          elif [ "${OPENSSL_VERSION}" == 1.1.1* ]; then
+            curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+          fi
           tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz"
           rm -rf openssl-${OPENSSL_VERSION}.tar.gz
 
