@@ -25,19 +25,19 @@ jobs:
           - pair:
               arch: "x86_64"
               vcvarsall: "x64"
+              shared: shared
+          - pair:
+              arch: "aarch64"
+              vcvarsall: "amd64_arm64"
               shared: static
+          - pair:
+              arch: "aarch64"
+              vcvarsall: "amd64_arm64"
+              shared: shared
           - pair:
               arch: "x86_64"
               vcvarsall: "x64"
-              shared: shared
-          - pair:
-              arch: "aarch64"
-              vcvarsall: "amd64_arm64"
               shared: static
-          - pair:
-              arch: "aarch64"
-              vcvarsall: "amd64_arm64"
-              shared: shared
 
     name: ${{ matrix.pair.arch }}-windows-msvc / ${{ matrix.pair.shared }}
 
