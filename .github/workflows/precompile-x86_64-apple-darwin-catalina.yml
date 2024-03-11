@@ -1,4 +1,4 @@
-name: precompile-x86_64-apple-darwin-high-sierra
+name: precompile-x86_64-apple-darwin-catalina
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   macos:
-    runs-on: self-hosted-x86_64-apple-darwin-high-sierra
+    runs-on: self-hosted-x86_64-apple-darwin-catalina
     name: x86_64-apple-darwin
     steps:
       - name: Checkout
@@ -58,7 +58,7 @@ jobs:
           make -j"$(sysctl -n hw.ncpu)" install_ssldirs
           mkdir -p "${ROOTDIR}/build"
           cd "${PERFIX_DIR}"
-          tar -czf "${ROOTDIR}/build/openssl-x86_64-apple-darwin-high-sierra.tar.gz" .
+          tar -czf "${ROOTDIR}/build/openssl-x86_64-apple-darwin-catalina.tar.gz" .
 
       - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
@@ -81,6 +81,6 @@ jobs:
       - name: deploy
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'cocoa-xu/openssl-build'
         env:
-          DEPLOY_MACOS_HIGH_SIERRA_HOOK_URL: ${{ secrets.DEPLOY_MACOS_HIGH_SIERRA_HOOK_URL }}
+          DEPLOY_MACOS_CATALINA_HOOK_URL: ${{ secrets.DEPLOY_MACOS_CATALINA_HOOK_URL }}
         run: |
-          curl -sS --no-progress-meter "${DEPLOY_MACOS_HIGH_SIERRA_HOOK_URL}${{ github.ref_name }}"
+          curl -sS --no-progress-meter "${DEPLOY_MACOS_CATALINA_HOOK_URL}${{ github.ref_name }}"
