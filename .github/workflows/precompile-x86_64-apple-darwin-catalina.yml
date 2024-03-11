@@ -6,9 +6,6 @@ on:
       openssl_verison:
         description: 'OpenSSL Version'
         required: true
-  push:
-    tags:
-      - 'v*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
