@@ -205,7 +205,14 @@ jobs:
             export TRIPLET=x86_64-unknown-freebsd${{ matrix.pair.major }}
             export OPENSSL_VERSION="${GITHUB_REF##*/v}"
             export PERFIX_DIR=/openssl-${TRIPLET}
-            curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+                ;;
+              1.1.1*)
+                curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+            esac
             tar xf openssl-${OPENSSL_VERSION}.tar.gz
             rm -f openssl-${OPENSSL_VERSION}.tar.gz
             cd openssl-${OPENSSL_VERSION}
@@ -262,7 +269,14 @@ jobs:
             export OPENSSL_VERSION="${GITHUB_REF##*/v}"
             export PERFIX_DIR=/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
-            curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+                ;;
+              1.1.1*)
+                curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+            esac
             tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
             rm -f openssl-${OPENSSL_VERSION}.tar.gz
             cd openssl-${OPENSSL_VERSION}
@@ -325,7 +339,14 @@ jobs:
             export OPENSSL_VERSION="${GITHUB_REF##*/v}"
             export PERFIX_DIR=/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
-            curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+                ;;
+              1.1.1*)
+                curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+            esac
             tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
             rm -f openssl-${OPENSSL_VERSION}.tar.gz
             cd openssl-${OPENSSL_VERSION}
