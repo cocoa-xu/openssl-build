@@ -1,4 +1,4 @@
-name: precompile
+name: precompile-bsd
 
 on:
   workflow_dispatch:
