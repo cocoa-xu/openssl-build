@@ -1,0 +1,221 @@
+name: precompile
+
+on:
+  workflow_dispatch:
+    inputs:
+      openssl_verison:
+        description: 'OpenSSL Version'
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  freebsd:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - pair:
+              fullversion: "13.2"
+              major: "13"
+          - pair:
+              fullversion: "14.0"
+              major: "14"
+      fail-fast: false
+
+    name: x86_64-unknown-freebsd${{ matrix.pair.major }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile in FreeBSD
+        id: compile-freebsd
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: ${{ matrix.pair.fullversion }}
+          usesh: true
+          prepare: |
+            pkg install -y curl perl5
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET=x86_64-unknown-freebsd${{ matrix.pair.major }}
+            export OPENSSL_VERSION="${{ inputs.openssl_verison }}"
+            export OPENSSL_VERSION="${OPENSSL_VERSION##*/v}"
+            export PERFIX_DIR=/openssl-${TRIPLET}
+            curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+            tar xf openssl-${OPENSSL_VERSION}.tar.gz
+            rm -f openssl-${OPENSSL_VERSION}.tar.gz
+            cd openssl-${OPENSSL_VERSION}
+            if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+            elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
+            fi
+            make -j$(nproc)
+            make -j$(nproc) install_sw
+            make -j$(nproc) install_ssldirs
+            cd "/openssl-${TRIPLET}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openssl-*.tar.gz
+
+  openbsd:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - pair:
+              fullversion: "7.3"
+              major: "7"
+          # - pair:
+          #     fullversion: "7.4"
+          #     major: "7"
+      fail-fast: false
+
+    name: x86_64-unknown-openbsd${{ matrix.pair.fullversion }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile in OpenBSD
+        id: compile-openbsd
+        uses: vmactions/openbsd-vm@v1
+        with:
+          release: ${{ matrix.pair.fullversion }}
+          usesh: true
+          prepare: |
+            pkg_add curl
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET=x86_64-unknown-openbsd${{ matrix.pair.major }}
+            export OPENSSL_VERSION="${{ inputs.openssl_verison }}"
+            export OPENSSL_VERSION="${OPENSSL_VERSION##*/v}"
+            export PERFIX_DIR=/openssl-${TRIPLET}
+            mkdir -p "${PERFIX_DIR}"
+            curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+            tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
+            rm -f openssl-${OPENSSL_VERSION}.tar.gz
+            cd openssl-${OPENSSL_VERSION}
+            if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+            elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
+            fi
+            make -j$(getconf NPROCESSORS_ONLN)
+            make -j$(getconf NPROCESSORS_ONLN) install_sw
+            make -j$(getconf NPROCESSORS_ONLN)install_ssldirs
+            cd "/openssl-${TRIPLET}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openssl-*.tar.gz
+
+  netbsd:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - pair:
+              fullversion: "9.0"
+              major: "9"
+          # - pair:
+          #     fullversion: "9.1"
+          #     major: "9"
+          # - pair:
+          #     fullversion: "9.2"
+          #     major: "9"
+          # - pair:
+          #     fullversion: "9.3"
+          #     major: "9"
+      fail-fast: false
+
+    name: x86_64-unknown-netbsd${{ matrix.pair.fullversion }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile in NetBSD
+        id: compile-netbsd
+        uses: vmactions/netbsd-vm@v1
+        with:
+          release: ${{ matrix.pair.fullversion }}
+          usesh: true
+          prepare: |
+            /usr/sbin/pkg_add curl perl
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET=x86_64-unknown-netbsd${{ matrix.pair.major }}
+            export OPENSSL_VERSION="${{ inputs.openssl_verison }}"
+            export OPENSSL_VERSION="${OPENSSL_VERSION##*/v}"
+            export PERFIX_DIR=/openssl-${TRIPLET}
+            mkdir -p "${PERFIX_DIR}"
+            curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+            tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
+            rm -f openssl-${OPENSSL_VERSION}.tar.gz
+            cd openssl-${OPENSSL_VERSION}
+            if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+            elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
+            fi
+            make -j$(getconf NPROCESSORS_ONLN)
+            make -j$(getconf NPROCESSORS_ONLN) install_sw
+            make -j$(getconf NPROCESSORS_ONLN) install_ssldirs
+            cd "/openssl-${TRIPLET}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openssl-*.tar.gz
+
+  deploy-freebsd:
+    runs-on: ubuntu-latest
+    needs: freebsd
+    steps:
+      - name: deploy
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'cocoa-xu/openssl-build'
+        env:
+          DEPLOY_FREEBSD13_HOOK_URL: ${{ secrets.DEPLOY_FREEBSD13_HOOK_URL }}
+          DEPLOY_FREEBSD14_HOOK_URL: ${{ secrets.DEPLOY_FREEBSD14_HOOK_URL }}
+        run: |
+          curl -sS --no-progress-meter "${DEPLOY_FREEBSD13_HOOK_URL}${{ inputs.openssl_verison }}"
+          curl -sS --no-progress-meter "${DEPLOY_FREEBSD14_HOOK_URL}${{ inputs.openssl_verison }}"
+
+  deploy-openbsd:
+    runs-on: ubuntu-latest
+    needs: openbsd
+    steps:
+      - name: deploy
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'cocoa-xu/openssl-build'
+        env:
+          DEPLOY_OPENBSD7_HOOK_URL: ${{ secrets.DEPLOY_OPENBSD7_HOOK_URL }}
+        run: |
+          curl -sS --no-progress-meter "${DEPLOY_OPENBSD7_HOOK_URL}${{ inputs.openssl_verison }}"
+
+  deploy-netbsd:
+    runs-on: ubuntu-latest
+    needs: netbsd
+    steps:
+      - name: deploy
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'cocoa-xu/openssl-build'
+        env:
+          DEPLOY_NETBSD9_HOOK_URL: ${{ secrets.DEPLOY_NETBSD9_HOOK_URL }}
+        run: |
+          curl -sS --no-progress-meter "${DEPLOY_NETBSD9_HOOK_URL}${{ inputs.openssl_verison }}"
