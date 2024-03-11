@@ -60,13 +60,13 @@ jobs:
           cd "${PERFIX_DIR}"
           tar -czf "${ROOTDIR}/build/openssl-x86_64-apple-darwin-high-sierra.tar.gz" .
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
             build/*.tar.gz
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         if: startsWith(github.event.inputs.openssl_verison, 'v')
         with:
           tag_name: ${{ github.event.inputs.openssl_verison }}

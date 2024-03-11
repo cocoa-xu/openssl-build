@@ -44,7 +44,7 @@ jobs:
 
           bash ./script-to-build-gnu.sh "${GITHUB_REF##*/v}" "${{ matrix.arch }}"
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
@@ -85,7 +85,7 @@ jobs:
             bash ./script-to-build-musl.sh "${GITHUB_REF##*/v}" "${{ matrix.arch }}" "alpine:latest"
           fi
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
@@ -156,7 +156,7 @@ jobs:
           cd "${PERFIX_DIR}"
           tar -czf "${ROOTDIR}/build/openssl-${{ matrix.arch }}-apple-darwin.tar.gz" .
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
@@ -216,7 +216,7 @@ jobs:
             cd "/openssl-${TRIPLET}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
@@ -266,7 +266,7 @@ jobs:
             cd "/openssl-${TRIPLET}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
@@ -322,7 +322,7 @@ jobs:
             cd "/openssl-${TRIPLET}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
@@ -452,7 +452,7 @@ jobs:
         run: |
           tar -czf ".\openssl-${{ matrix.pair.shared }}-${{ matrix.pair.arch }}-windows-msvc.tar.gz" -C C:\OpenSSL-Win64 .
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |

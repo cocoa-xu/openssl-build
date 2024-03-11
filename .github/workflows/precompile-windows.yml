@@ -106,7 +106,7 @@ jobs:
         run: |
           tar -czf ".\openssl-${{ matrix.pair.shared }}-${{ matrix.pair.arch }}-windows-msvc.tar.gz" -C C:\OpenSSL-Win64 .
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.openssl_verison }}
           name: ${{ github.event.inputs.openssl_verison }}
