@@ -52,11 +52,14 @@ jobs:
             tar xf openssl-${OPENSSL_VERSION}.tar.gz
             rm -f openssl-${OPENSSL_VERSION}.tar.gz
             cd openssl-${OPENSSL_VERSION}
-            if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
-              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
-            elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
-              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
-            fi
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+                ;;
+              1.1.1*)
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
+                ;;
+            esac
             make -j$(nproc)
             make -j$(nproc) install_sw
             make -j$(nproc) install_ssldirs
@@ -107,11 +110,14 @@ jobs:
             tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
             rm -f openssl-${OPENSSL_VERSION}.tar.gz
             cd openssl-${OPENSSL_VERSION}
-            if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
-              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
-            elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
-              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
-            fi
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+                ;;
+              1.1.1*)
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
+                ;;
+            esac
             make -j$(getconf NPROCESSORS_ONLN)
             make -j$(getconf NPROCESSORS_ONLN) install_sw
             make -j$(getconf NPROCESSORS_ONLN)install_ssldirs
@@ -168,11 +174,14 @@ jobs:
             tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
             rm -f openssl-${OPENSSL_VERSION}.tar.gz
             cd openssl-${OPENSSL_VERSION}
-            if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
-              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
-            elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
-              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
-            fi
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+                ;;
+              1.1.1*)
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
+                ;;
+            esac
             make -j$(getconf NPROCESSORS_ONLN)
             make -j$(getconf NPROCESSORS_ONLN) install_sw
             make -j$(getconf NPROCESSORS_ONLN) install_ssldirs
