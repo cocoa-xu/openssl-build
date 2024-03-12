@@ -203,14 +203,19 @@ jobs:
           run: |
             export ROOT_DIR="$(pwd)"
             export TRIPLET=x86_64-unknown-freebsd${{ matrix.pair.major }}
-            export OPENSSL_VERSION="${GITHUB_REF##*/v}"
+            export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
             export PERFIX_DIR=/openssl-${TRIPLET}
+            mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
               3.*)
                 curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
                 ;;
               1.1.1*)
                 curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+              *)
+                echo "Unsupported version: ${OPENSSL_VERSION}"
+                exit 1
                 ;;
             esac
             tar xf openssl-${OPENSSL_VERSION}.tar.gz
@@ -266,7 +271,7 @@ jobs:
           run: |
             export ROOT_DIR="$(pwd)"
             export TRIPLET=x86_64-unknown-openbsd${{ matrix.pair.major }}
-            export OPENSSL_VERSION="${GITHUB_REF##*/v}"
+            export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
             export PERFIX_DIR=/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
@@ -275,6 +280,10 @@ jobs:
                 ;;
               1.1.1*)
                 curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+              *)
+                echo "Unsupported version: ${OPENSSL_VERSION}"
+                exit 1
                 ;;
             esac
             tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
@@ -336,7 +345,7 @@ jobs:
           run: |
             export ROOT_DIR="$(pwd)"
             export TRIPLET=x86_64-unknown-netbsd${{ matrix.pair.major }}
-            export OPENSSL_VERSION="${GITHUB_REF##*/v}"
+            export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
             export PERFIX_DIR=/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
@@ -345,6 +354,10 @@ jobs:
                 ;;
               1.1.1*)
                 curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+              *)
+                echo "Unsupported version: ${OPENSSL_VERSION}"
+                exit 1
                 ;;
             esac
             tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
