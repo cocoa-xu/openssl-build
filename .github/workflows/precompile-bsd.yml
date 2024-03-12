@@ -79,7 +79,6 @@ jobs:
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
       - uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           tag_name: ${{ github.event.inputs.openssl_verison }}
           name: ${{ github.event.inputs.openssl_verison }}
@@ -226,7 +225,6 @@ jobs:
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
       - uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           tag_name: ${{ github.event.inputs.openssl_verison }}
           name: ${{ github.event.inputs.openssl_verison }}
