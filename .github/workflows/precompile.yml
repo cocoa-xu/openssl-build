@@ -226,7 +226,7 @@ jobs:
                 ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
                 ;;
               1.1.1*)
-                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" BSD-x86_64
+                ./config --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}"
                 ;;
             esac
             make -j$(nproc)
@@ -294,7 +294,7 @@ jobs:
                 ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
                 ;;
               1.1.1*)
-                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" BSD-x86_64
+                ./config --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}"
                 ;;
             esac
             make -j$(getconf NPROCESSORS_ONLN)
@@ -368,7 +368,7 @@ jobs:
                 ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
                 ;;
               1.1.1*)
-                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" BSD-x86_64
+                ./config --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}"
                 ;;
             esac
             make -j$(getconf NPROCESSORS_ONLN)
