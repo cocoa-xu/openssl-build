@@ -204,7 +204,7 @@ jobs:
             export ROOT_DIR="$(pwd)"
             export TRIPLET=x86_64-unknown-freebsd${{ matrix.pair.major }}
             export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
-            export PERFIX_DIR=/openssl-${TRIPLET}
+            export PERFIX_DIR=/tmp/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
               3.*)
@@ -226,13 +226,13 @@ jobs:
                 ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
                 ;;
               1.1.1*)
-                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" BSD-x86_64
                 ;;
             esac
             make -j$(nproc)
             make -j$(nproc) install_sw
             make -j$(nproc) install_ssldirs
-            cd "/openssl-${TRIPLET}"
+            cd "${PERFIX_DIR}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
       - uses: softprops/action-gh-release@v2
@@ -272,7 +272,7 @@ jobs:
             export ROOT_DIR="$(pwd)"
             export TRIPLET=x86_64-unknown-openbsd${{ matrix.pair.major }}
             export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
-            export PERFIX_DIR=/openssl-${TRIPLET}
+            export PERFIX_DIR=/tmp/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
               3.*)
@@ -294,13 +294,13 @@ jobs:
                 ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
                 ;;
               1.1.1*)
-                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" BSD-x86_64
                 ;;
             esac
             make -j$(getconf NPROCESSORS_ONLN)
             make -j$(getconf NPROCESSORS_ONLN) install_sw
             make -j$(getconf NPROCESSORS_ONLN)install_ssldirs
-            cd "/openssl-${TRIPLET}"
+            cd "${PERFIX_DIR}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
       - uses: softprops/action-gh-release@v2
@@ -346,7 +346,7 @@ jobs:
             export ROOT_DIR="$(pwd)"
             export TRIPLET=x86_64-unknown-netbsd${{ matrix.pair.major }}
             export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
-            export PERFIX_DIR=/openssl-${TRIPLET}
+            export PERFIX_DIR=/tmp/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
               3.*)
@@ -368,13 +368,13 @@ jobs:
                 ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
                 ;;
               1.1.1*)
-                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic64
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" BSD-x86_64
                 ;;
             esac
             make -j$(getconf NPROCESSORS_ONLN)
             make -j$(getconf NPROCESSORS_ONLN) install_sw
             make -j$(getconf NPROCESSORS_ONLN) install_ssldirs
-            cd "/openssl-${TRIPLET}"
+            cd "${PERFIX_DIR}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
 
       - uses: softprops/action-gh-release@v2
