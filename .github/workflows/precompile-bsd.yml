@@ -17,6 +17,9 @@ permissions:
 jobs:
   freebsd:
     runs-on: ubuntu-latest
+    env:
+      TRIPLET: x86_64-unknown-freebsd${{ matrix.pair.major }}
+      INPUT_OPENSSL_VERSION: ${{ inputs.openssl_verison }}
     strategy:
       matrix:
         include:
@@ -37,6 +40,7 @@ jobs:
         id: compile-freebsd
         uses: vmactions/freebsd-vm@v1
         with:
+          envs: 'TRIPLET INPUT_OPENSSL_VERSION'
           release: ${{ matrix.pair.fullversion }}
           usesh: true
           prepare: |
@@ -44,9 +48,10 @@ jobs:
 
           run: |
             export ROOT_DIR="$(pwd)"
-            export TRIPLET=x86_64-unknown-freebsd${{ matrix.pair.major }}
-            export OPENSSL_VERSION="${{ inputs.openssl_verison }}"
+            export OPENSSL_VERSION="${INPUT_OPENSSL_VERSION}"
             export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
+            echo "INPUT_OPENSSL_VERSION: ${INPUT_OPENSSL_VERSION}"
+            echo "OpenSSL Version: ${OPENSSL_VERSION}"
             export PERFIX_DIR=/tmp/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
@@ -117,6 +122,8 @@ jobs:
             export TRIPLET=x86_64-unknown-openbsd${{ matrix.pair.major }}
             export OPENSSL_VERSION="${{ inputs.openssl_verison }}"
             export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
+            echo "inputs.openssl_verison: ${{ inputs.openssl_verison }}"
+            echo "OpenSSL Version: ${OPENSSL_VERSION}"
             export PERFIX_DIR=/tmp/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
@@ -193,6 +200,8 @@ jobs:
             export TRIPLET=x86_64-unknown-netbsd${{ matrix.pair.major }}
             export OPENSSL_VERSION="${{ inputs.openssl_verison }}"
             export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
+            echo "inputs.openssl_verison: ${{ inputs.openssl_verison }}"
+            echo "OpenSSL Version: ${OPENSSL_VERSION}"
             export PERFIX_DIR=/tmp/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
