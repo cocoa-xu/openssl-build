@@ -203,7 +203,7 @@ jobs:
           run: |
             export ROOT_DIR="$(pwd)"
             export TRIPLET=x86_64-unknown-freebsd${{ matrix.pair.major }}
-            export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
+            export OPENSSL_VERSION="${GITHUB_REF##*/v}"
             export PERFIX_DIR=/tmp/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
@@ -271,7 +271,7 @@ jobs:
           run: |
             export ROOT_DIR="$(pwd)"
             export TRIPLET=x86_64-unknown-openbsd${{ matrix.pair.major }}
-            export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
+            export OPENSSL_VERSION="${GITHUB_REF##*/v}"
             export PERFIX_DIR=/tmp/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
@@ -345,7 +345,7 @@ jobs:
           run: |
             export ROOT_DIR="$(pwd)"
             export TRIPLET=x86_64-unknown-netbsd${{ matrix.pair.major }}
-            export OPENSSL_VERSION="$(echo $OPENSSL_VERSION | awk -F'v' '{print $2}')"
+            export OPENSSL_VERSION="${GITHUB_REF##*/v}"
             export PERFIX_DIR=/tmp/openssl-${TRIPLET}
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in

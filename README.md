@@ -13,7 +13,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td></td>
     <td></td>
     <td><b>Version →</b></td>
-    <td>3.3.0</td>
+    <td>3.3.0-3.3.1</td>
     <td>3.2.1</td>
     <td>3.2.0</td>
     <td>1.1.1w</td>
