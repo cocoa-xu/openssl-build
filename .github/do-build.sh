@@ -14,6 +14,10 @@ case $TRIPLET in
           ;;
      *-linux-gnu )
           yum install -y curl automake autoconf openssl-devel ncurses-devel perl-IPC-Cmd python3
+          if [ "${TRIPLET}" != "x86_64-linux-gnu" ]; then
+               yum install -y cpanm perl-App-cpanminus perl-Config-Tiny && \
+               cpanm Math::BigInt ;
+          fi
           ;;
      *-linux-musl )
           apk add make curl gcc g++ perl linux-headers
