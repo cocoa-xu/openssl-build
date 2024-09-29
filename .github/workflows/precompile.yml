@@ -33,6 +33,7 @@ jobs:
           fi
 
       - name: Install binfmt
+        if: matrix.arch != 'x86_64'
         run: |
           sudo apt update
           sudo apt install -y binfmt-support qemu-user-static
@@ -70,6 +71,7 @@ jobs:
           fi
 
       - name: Install binfmt
+        if: matrix.arch != 'x86_64'
         run: |
           sudo apt update
           sudo apt install -y binfmt-support qemu-user-static
