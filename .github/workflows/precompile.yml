@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [x86_64, i686, aarch64, riscv64, ppc64le, s390x]
+        arch: [x86_64, aarch64, riscv64, ppc64le, s390x]
 
     name: ${{ matrix.arch }}-linux-gnu
 
