@@ -44,6 +44,7 @@ jobs:
       - name: Precompile
         run: |
           export OPENSSL_VERSION=${{ github.event.inputs.openssl_verison }}
+          export OPENSSL_VERSION="${OPENSSL_VERSION##*v}" 
           cp .github/script-to-build-gnu.sh ./
           cp .github/do-build.sh ./
 
