@@ -13,7 +13,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td></td>
     <td></td>
     <td><b>Version →</b></td>
-    <td>3.3.2</td>
+    <td>3.3.2<sup>1</sup></td>
     <td>3.3.0-3.3.1</td>
     <td>3.2.1</td>
     <td>3.2.0</td>
@@ -41,7 +41,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
   </tr>
   <tr>
     <td>i686</td>
-    <td></td>
+    <td><sup>2</sup></td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -205,3 +205,11 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
   </tr>
 </tbody>
 </table>
+
+<footer>
+  
+  *1. `manylinux_2_28_$ARCH` will be used for `x86_64`, `aarch64`, `ppc64le` and `s390x` with glibc Starting from OpenSSL 3.3.2*
+
+  *2. Support for i686-linux-gnu is deprecated*
+  
+</footer>

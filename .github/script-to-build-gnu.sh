@@ -4,7 +4,7 @@ set -x
 
 OPENSSL_VERSION=$1
 ARCH=$2
-IMAGE_NAME="quay.io/pypa/manylinux2014_$ARCH:latest"
+IMAGE_NAME="quay.io/pypa/manylinux_2_28_$ARCH:latest"
 
 if [ "${ARCH}" = "riscv64" ]; then
     IMAGE_NAME="riscv64/ubuntu:22.04"
