@@ -14,8 +14,8 @@ case $TRIPLET in
           ;;
      *-linux-gnu )
           yum install -y curl automake autoconf openssl-devel ncurses-devel perl-IPC-Cmd python3
-          if [ "${TRIPLET}" != "x86_64-linux-gnu" ]; then
-               yum install -y cpanm perl-App-cpanminus perl-Config-Tiny && \
+          if [ "${TRIPLET}" = "s390x-linux-gnu" ]; then
+               yum install -y perl-App-cpanminus && \
                cpanm Math::BigInt ;
           fi
           ;;
