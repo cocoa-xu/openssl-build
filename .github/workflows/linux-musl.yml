@@ -127,7 +127,12 @@ jobs:
 
           export BUILD_VERSION="${BUILD_VERSION_V#v}"
           echo "version=${BUILD_VERSION}" >> $GITHUB_OUTPUT
-          echo "image=${{ matrix.job.image }}" >> $GITHUB_OUTPUT
+
+          if [ "${{ matrix.job.image }}" == musllinux* ]; then
+            echo "image=quay.io/pypa/${{ matrix.job.image }}_${{ matrix.job.arch }}" >> $GITHUB_OUTPUT
+          else
+            echo "image=${{ matrix.job.image }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Restore Source Code
         if: steps.build-check.outputs.build == 'true'
