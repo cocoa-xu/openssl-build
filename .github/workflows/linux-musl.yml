@@ -175,10 +175,10 @@ jobs:
         if: steps.build-check.outputs.build == 'true'
         run: |
           export OPENSSL_VERSION=${{ steps.build-check.outputs.version }}
-          cp .github/script-to-build-gnu.sh ./
+          cp .github/script-to-build-musl.sh ./
           cp .github/do-build.sh ./
 
-          bash ./script-to-build-gnu.sh "${OPENSSL_VERSION}" "${{ matrix.job.arch }}" "${{ steps.build-check.outputs.image }}"
+          bash ./script-to-build-musl.sh "${OPENSSL_VERSION}" "${{ matrix.job.arch }}" "${{ steps.build-check.outputs.image }}" "${{ matrix.job.platform }}"
 
       - name: Upload binaries
         uses: softprops/action-gh-release@v2

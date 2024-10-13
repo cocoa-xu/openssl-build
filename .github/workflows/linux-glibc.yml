@@ -179,6 +179,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y binfmt-support qemu-user-static
           fi
+          sudo docker image ls "${{ steps.build-check.outputs.image }}"
 
       - name: Compile
         if: steps.build-check.outputs.build == 'true'
@@ -187,7 +188,7 @@ jobs:
           cp .github/script-to-build-gnu.sh ./
           cp .github/do-build.sh ./
 
-          bash ./script-to-build-gnu.sh "${OPENSSL_VERSION}" "${{ matrix.job.arch }}" "${{ steps.build-check.outputs.image }}"
+          bash ./script-to-build-gnu.sh "${OPENSSL_VERSION}" "${{ matrix.job.arch }}" "${{ steps.build-check.outputs.image }}" "${{ matrix.job.platform }}"
 
       - name: Upload binaries
         uses: softprops/action-gh-release@v2
