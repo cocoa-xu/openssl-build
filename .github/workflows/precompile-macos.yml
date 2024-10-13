@@ -96,6 +96,7 @@ jobs:
             ./openssl-${{ steps.build-check.outputs.version }}.tar.gz
 
       - name: Compile OpenSSL
+        if: steps.build-check.outputs.build == 'true'
         run: |
           export OPENSSL_VERSION="${{ steps.build-check.outputs.version }}"
           export ROOTDIR="$(pwd)"
@@ -131,6 +132,7 @@ jobs:
           shasum -a 256 "${FILENAME}" | tee "${FILENAME}.sha256"
 
       - uses: softprops/action-gh-release@v2
+        if: steps.build-check.outputs.build == 'true'
         with:
           tag_name: v${{ steps.build-check.outputs.version }}
           name: v${{ steps.build-check.outputs.version }}
