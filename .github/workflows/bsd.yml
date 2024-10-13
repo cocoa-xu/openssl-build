@@ -1,0 +1,229 @@
+name: precompile-bsd
+
+on:
+  workflow_dispatch:
+    inputs:
+      verison:
+        description: 'OpenSSL Version'
+        required: true
+      build_freebsd:
+        description: 'Build FreeBSD'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+      build_openbsd:
+        description: 'Build OpenBSD'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+      build_netbsd:
+        description: 'Build NetBSD'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.job.target }}-${{ inputs.verison }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - { os: "freebsd", target: "x86_64-unknown-freebsd", version: "13.2" }
+          - { os: "openbsd", target: "x86_64-unknown-openbsd", version: "7.3" }
+          - { os: "netbsd", target: "x86_64-unknown-netbsd", version: "9.0" }
+
+    name: ${{ matrix.job.target }} - ${{ matrix.job.version }}
+
+    steps:
+      - name: Build Check
+        id: build-check
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "build=true" >> $GITHUB_OUTPUT
+            export BUILD_VERSION_V="v${GITHUB_REF##*/v}"
+          else
+            if [ "${{ matrix.job.target }}" == "x86_64-unknown-freebsd" ]; then
+              echo "build=${{ inputs.build_freebsd }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ "${{ matrix.job.target }}" == "x86_64-unknown-openbsd" ]; then
+              echo "build=${{ inputs.build_openbsd }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ "${{ matrix.job.target }}" == "x86_64-unknown-netbsd" ]; then
+              echo "build=${{ inputs.build_netbsd }}" >> $GITHUB_OUTPUT
+            fi
+
+            export BUILD_VERSION_V="${{ inputs.verison }}"
+          fi
+
+          export BUILD_VERSION="${BUILD_VERSION_V#v}"
+          echo "version=${BUILD_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Compile in FreeBSD
+        if: steps.build-check.outputs.build == 'true' && matrix.job.target == 'x86_64-unknown-freebsd'
+        uses: vmactions/freebsd-vm@v1
+        with:
+          envs: 'TRIPLET OPENSSL_VERSION'
+          release: ${{ matrix.job.verison }}
+          usesh: true
+          prepare: |
+            pkg install -y curl perl5
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET="${{ matrix.job.target }}"
+            export OPENSSL_VERSION="${{ steps.build-check.outputs.version }}"
+            echo "OpenSSL Version: ${OPENSSL_VERSION}"
+            export PERFIX_DIR="/tmp/openssl-${TRIPLET}"
+            mkdir -p "${PERFIX_DIR}"
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+              1.1.1*)
+                curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+              *)
+                echo "Unsupported version: ${OPENSSL_VERSION}"
+                exit 1
+                ;;
+            esac
+            tar xf "openssl-${OPENSSL_VERSION}.tar.gz" && rm -f "openssl-${OPENSSL_VERSION}.tar.gz"
+            cd "openssl-${OPENSSL_VERSION}"
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+                ;;
+              1.1.1*)
+                ./config --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}"
+                ;;
+            esac
+
+            make -j$(nproc)
+            make -j$(nproc) install_sw
+            make -j$(nproc) install_ssldirs
+            
+            cd "${PERFIX_DIR}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+
+      - name: Compile in OpenBSD
+        if: steps.build-check.outputs.build == 'true' && matrix.job.target == 'x86_64-unknown-openbsd'
+        uses: vmactions/openbsd-vm@v1
+        with:
+          release: ${{ matrix.job.version }}
+          usesh: true
+          prepare: |
+            pkg_add curl
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET="${{ matrix.job.target }}"
+            export OPENSSL_VERSION="${{ steps.build-check.outputs.version }}"
+            echo "OpenSSL Version: ${OPENSSL_VERSION}"
+            export PERFIX_DIR="/tmp/openssl-${TRIPLET}"
+            mkdir -p "${PERFIX_DIR}"
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
+                ;;
+              1.1.1*)
+                curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+              *)
+                echo "Unsupported version: ${OPENSSL_VERSION}"
+                exit 1
+                ;;
+            esac
+            tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
+            rm -f openssl-${OPENSSL_VERSION}.tar.gz
+            cd openssl-${OPENSSL_VERSION}
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+                ;;
+              1.1.1*)
+                ./config --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}"
+                ;;
+            esac
+
+            make -j$(getconf NPROCESSORS_ONLN)
+            make -j$(getconf NPROCESSORS_ONLN) install_sw
+            make -j$(getconf NPROCESSORS_ONLN)install_ssldirs
+
+            cd "${PERFIX_DIR}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+
+      - name: Compile in NetBSD
+        id: compile-netbsd
+        uses: vmactions/netbsd-vm@v1
+        with:
+          release: ${{ matrix.job.version }}
+          usesh: true
+          prepare: |
+            /usr/sbin/pkg_add curl perl
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET="${{ matrix.job.target }}"
+            export OPENSSL_VERSION="${{ steps.build-check.outputs.version }}"
+            echo "OpenSSL Version: ${OPENSSL_VERSION}"
+            export PERFIX_DIR="/tmp/openssl-${TRIPLET}"
+            mkdir -p "${PERFIX_DIR}"
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+              1.1.1*)
+                curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+              *)
+                echo "Unsupported version: ${OPENSSL_VERSION}"
+                exit 1
+                ;;
+            esac
+            tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz" && rm -f "openssl-${OPENSSL_VERSION}.tar.gz"
+            cd "openssl-${OPENSSL_VERSION}"
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+                ;;
+              1.1.1*)
+                ./config --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}"
+                ;;
+            esac
+
+            make -j$(getconf NPROCESSORS_ONLN)
+            make -j$(getconf NPROCESSORS_ONLN) install_sw
+            make -j$(getconf NPROCESSORS_ONLN) install_ssldirs
+
+            cd "${PERFIX_DIR}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+
+      - name: Upload binaries
+        uses: softprops/action-gh-release@v2
+        if: steps.build-check.outputs.build == 'true'
+        with:
+          tag_name: v${{ steps.build-check.outputs.version }}
+          name: v${{ steps.build-check.outputs.version }}
+          files: |
+            openssl-*.tar.gz
