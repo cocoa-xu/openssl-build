@@ -1,4 +1,4 @@
-name: precompile-macos
+name: macos
 
 on:
   workflow_dispatch:
