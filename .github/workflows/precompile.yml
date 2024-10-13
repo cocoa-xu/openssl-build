@@ -13,44 +13,6 @@ permissions:
   contents: write
 
 jobs:
-  linux-gnu:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [x86_64, aarch64, riscv64, ppc64le, s390x]
-
-    name: ${{ matrix.arch }}-linux-gnu
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Pull docker image
-        run: |
-          if [ "${{ matrix.arch }}" = "riscv64" ]; then
-            sudo docker pull --platform=linux/${{ matrix.arch }} riscv64/ubuntu:22.04
-          else
-            sudo docker pull quay.io/pypa/manylinux_2_28_${{ matrix.arch }}:latest
-          fi
-
-      - name: Install binfmt
-        if: matrix.arch != 'x86_64'
-        run: |
-          sudo apt update
-          sudo apt install -y binfmt-support qemu-user-static
-
-      - name: Precompile
-        run: |
-          cp .github/script-to-build-gnu.sh ./
-          cp .github/do-build.sh ./
-
-          bash ./script-to-build-gnu.sh "${GITHUB_REF##*/v}" "${{ matrix.arch }}"
-
-      - uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            openssl-*.tar.gz
-
   linux-musl:
     runs-on: ubuntu-latest
     strategy:

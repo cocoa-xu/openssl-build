@@ -26,16 +26,15 @@ on:
     tags:
       - "v*"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.verison }}
-  cancel-in-progress: true
-
 permissions:
   contents: write
 
 jobs:
   macos:
     runs-on: ${{ matrix.job.runs-on }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.job.target }}-${{ inputs.verison }}
+      cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
