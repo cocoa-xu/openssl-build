@@ -1,0 +1,138 @@
+name: precompile-macos
+
+on:
+  workflow_dispatch:
+    inputs:
+      verison:
+        description: 'OpenSSL Version'
+        required: true
+      build_arm64:
+        description: 'Build ARM64'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+      build_x86_64:
+        description: 'Build x86_64'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.verison }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    runs-on: ${{ matrix.job.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - { arch: "x86_64", runs-on: macos-12 }
+          - { arch: "arm64", runs-on: macos-14 }
+      
+    name: ${{ matrix.job.arch }}-apple-darwin
+
+    steps:
+      - name: Build Check
+        id: build-check
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "build=true" >> $GITHUB_OUTPUT
+            export BUILD_VERSION_V="v${GITHUB_REF##*/v}"
+          else
+            if [ "${{ matrix.job.target }}" == "arm64-apple-darwin" ]; then
+              echo "build=${{ inputs.build_arm64 }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ "${{ matrix.job.target }}" == "x86_64-apple-darwin" ]; then
+              echo "build=${{ inputs.build_x86_64 }}" >> $GITHUB_OUTPUT
+            fi
+
+            export BUILD_VERSION_V="${{ inputs.verison }}"
+          fi
+
+          export BUILD_VERSION="${BUILD_VERSION_V#v}"
+          echo "version=${BUILD_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Restore Source Code
+        if: steps.build-check.outputs.build == 'true'
+        id: cache-src
+        uses: actions/cache/restore@v4
+        with:
+          key: src-${{ steps.build-check.outputs.version }}
+          path: |
+            ./openssl-${{ steps.build-check.outputs.version }}.tar.gz
+
+      - name: Get source code
+        if: steps.build-check.outputs.build == 'true' && steps.cache-src.outputs.cache-hit != 'true'
+        run: |
+          export BUILD_VERSION="${{ steps.build-check.outputs.version }}"
+          export SRC_FILENAME="openssl-${BUILD_VERSION}.tar.gz"
+          if [[ "${BUILD_VERSION}" == 3.* ]]; then
+            curl -fSL "https://www.openssl.org/source/${SRC_FILENAME}" -o "${SRC_FILENAME}"
+          elif [[ "${BUILD_VERSION}" == 1.1.1* ]]; then
+            curl -fSL "https://openssl.org/source/old/1.1.1/${SRC_FILENAME}" -o "${SRC_FILENAME}"
+          fi
+
+      - name: Cache Source Code
+        if: steps.build-check.outputs.build == 'true' && steps.cache-src.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: src-${{ steps.build-check.outputs.version }}
+          path: |
+            ./openssl-${{ steps.build-check.outputs.version }}.tar.gz
+
+      - name: Compile OpenSSL
+        run: |
+          export OPENSSL_VERSION="${{ steps.build-check.outputs.version }}"
+          export ROOTDIR="$(pwd)"
+          export PERFIX_DIR="/tmp/openssl-${{ matrix.job.arch }}-apple-darwin"
+          
+          mkdir -p "${PERFIX_DIR}"
+          cd "openssl-${OPENSSL_VERSION}"
+          mkdir build
+          if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
+            if [ "${{ matrix.job.arch }}" = "arm64" ]; then
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64 no-tests
+            else
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64 no-tests
+            fi
+          elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
+            if [ "${{ matrix.job.arch }}" = "arm64" ]; then
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64-cc
+            else
+              ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64-cc
+            fi
+          fi
+          
+          make -j"$(sysctl -n hw.ncpu)"
+          make -j"$(sysctl -n hw.ncpu)" install_sw
+          make -j"$(sysctl -n hw.ncpu)" install_ssldirs
+          
+          export FILENAME="openssl-${{ matrix.job.arch }}-apple-darwin.tar.gz"
+          mkdir -p "${ROOTDIR}/build"
+          cd "${PERFIX_DIR}"
+          tar -czf "${ROOTDIR}/build/${FILENAME}" .
+          cd "${ROOTDIR}/build/"
+          shasum -a 256 "${FILENAME}" | tee "${FILENAME}.sha256"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.build-check.outputs.version }}
+          name: v${{ steps.build-check.outputs.version }}
+          files: |
+            build/*.tar.gz
+            build/*.sha256
