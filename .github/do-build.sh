@@ -85,4 +85,4 @@ cd "/openssl-${TRIPLET}"
 tar -czf "/work/openssl-${TRIPLET}.tar.gz" .
 
 cd /work
-shasum -a 256 "openssl-${TRIPLET}.tar.gz" | tee "openssl-${TRIPLET}.tar.gz.sha256"
+sha256sum "openssl-${TRIPLET}.tar.gz" | tee "openssl-${TRIPLET}.tar.gz.sha256"

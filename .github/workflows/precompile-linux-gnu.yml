@@ -59,7 +59,7 @@ permissions:
   contents: write
 
 jobs:
-  linux-gnu:
+  linux-glibc:
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.job.target }}-${{ inputs.verison }}
