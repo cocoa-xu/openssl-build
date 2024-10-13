@@ -22,6 +22,14 @@ on:
         options:
           - true
           - false
+      build_i686:
+        description: 'Build i686'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
       build_armv7l:
         description: 'Build armv7l'
         required: false
@@ -69,6 +77,7 @@ jobs:
       matrix:
         job:
           - { target: "x86_64-linux-gnu", arch: "x86_64", image: "manylinux", platform: "linux/amd64" }
+          - { target: "i686-linux-gnu", arch: "i686", image: "manylinux", platform: "linux/386" }
           - { target: "aarch64-linux-gnu", arch: "aarch64", image: "manylinux", platform: "linux/aarch64" }
           - { target: "armv7l-linux-gnueabihf", arch: "armv7l", image: "ubuntu:20.04", platform: "linux/arm/v7" }
           - { target: "riscv64-linux-gnu", arch: "riscv64", image: "ubuntu:20.04", platform: "linux/riscv64" }
@@ -91,6 +100,10 @@ jobs:
 
             if [ "${{ matrix.job.target }}" == "x86_64-linux-gnu" ]; then
               echo "build=${{ inputs.build_x86_64 }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ "${{ matrix.job.target }}" == "i686-linux-gnu" ]; then
+              echo "build=${{ inputs.build_i686 }}" >> $GITHUB_OUTPUT
             fi
 
             if [ "${{ matrix.job.target }}" == "armv7l-linux-gnueabihf" ]; then
@@ -155,18 +168,17 @@ jobs:
             ./openssl-${{ steps.build-check.outputs.version }}.tar.gz
 
       - name: Checkout
+        if: steps.build-check.outputs.build == 'true'
         uses: actions/checkout@v4
 
       - name: Pull docker image
         if: steps.build-check.outputs.build == 'true'
         run: |
           sudo docker pull --platform="${{ matrix.job.platform }}" "${{ steps.build-check.outputs.image }}"
-
-      - name: Install binfmt
-        if: steps.build-check.outputs.build == 'true' && matrix.job.arch != 'x86_64'
-        run: |
-          sudo apt update
-          sudo apt install -y binfmt-support qemu-user-static
+          if [ "${{ matrix.job.arch }}" != "$(uname -m)" ]; then
+            sudo apt-get update
+            sudo apt-get install -y binfmt-support qemu-user-static
+          fi
 
       - name: Compile
         if: steps.build-check.outputs.build == 'true'
