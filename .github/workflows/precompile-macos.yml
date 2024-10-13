@@ -42,7 +42,7 @@ jobs:
         job:
           - { arch: "x86_64", runs-on: macos-12 }
           - { arch: "arm64", runs-on: macos-14 }
-      
+
     name: ${{ matrix.job.arch }}-apple-darwin
 
     steps:
@@ -100,8 +100,9 @@ jobs:
           export OPENSSL_VERSION="${{ steps.build-check.outputs.version }}"
           export ROOTDIR="$(pwd)"
           export PERFIX_DIR="/tmp/openssl-${{ matrix.job.arch }}-apple-darwin"
-          
+
           mkdir -p "${PERFIX_DIR}"
+          tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz"
           cd "openssl-${OPENSSL_VERSION}"
           mkdir build
           if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
@@ -117,11 +118,11 @@ jobs:
               ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-x86_64-cc
             fi
           fi
-          
+
           make -j"$(sysctl -n hw.ncpu)"
           make -j"$(sysctl -n hw.ncpu)" install_sw
           make -j"$(sysctl -n hw.ncpu)" install_ssldirs
-          
+
           export FILENAME="openssl-${{ matrix.job.arch }}-apple-darwin.tar.gz"
           mkdir -p "${ROOTDIR}/build"
           cd "${PERFIX_DIR}"
