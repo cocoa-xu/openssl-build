@@ -1,0 +1,200 @@
+name: linux-glibc
+
+on:
+  workflow_dispatch:
+    inputs:
+      verison:
+        description: 'OpenSSL Version'
+        required: true
+      build_aarch64:
+        description: 'Build aarch64'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+      build_x86_64:
+        description: 'Build x86_64'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+      build_i686:
+        description: 'Build i686'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+      build_armv7l:
+        description: 'Build armv7l'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - true
+          - false
+      build_riscv64:
+        description: 'Build riscv64'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+      build_ppc64le:
+        description: 'Build ppc64le'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+      build_s390x:
+        description: 'Build s390x'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+
+permissions:
+  contents: write
+
+jobs:
+  linux-glibc:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.job.target }}-${{ inputs.verison }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - { target: "x86_64-linux-gnu", arch: "x86_64", image: "manylinux", platform: "linux/amd64" }
+          - { target: "i686-linux-gnu", arch: "i686", image: "manylinux", platform: "linux/386" }
+          - { target: "aarch64-linux-gnu", arch: "aarch64", image: "manylinux", platform: "linux/aarch64" }
+          - { target: "armv7l-linux-gnueabihf", arch: "armv7l", image: "arm32v7/ubuntu:20.04", platform: "linux/arm/v7" }
+          - { target: "riscv64-linux-gnu", arch: "riscv64", image: "ubuntu:20.04", platform: "linux/riscv64" }
+          - { target: "ppc64le-linux-gnu", arch: "ppc64le", image: "manylinux", platform: "linux/ppc64le" }
+          - { target: "s390x-linux-gnu", arch: "s390x", image: "manylinux", platform: "linux/s390x" }
+
+    name: ${{ matrix.job.target }}
+
+    steps:
+      - name: Build Check
+        id: build-check
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "build=true" >> $GITHUB_OUTPUT
+            export BUILD_VERSION_V="v${GITHUB_REF##*/v}"
+          else
+            if [ "${{ matrix.job.target }}" == "aarch64-linux-gnu" ]; then
+              echo "build=${{ inputs.build_aarch64 }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ "${{ matrix.job.target }}" == "x86_64-linux-gnu" ]; then
+              echo "build=${{ inputs.build_x86_64 }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ "${{ matrix.job.target }}" == "i686-linux-gnu" ]; then
+              echo "build=${{ inputs.build_i686 }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ "${{ matrix.job.target }}" == "armv7l-linux-gnueabihf" ]; then
+              echo "build=${{ inputs.build_armv7l }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ "${{ matrix.job.target }}" == "riscv64-linux-gnu" ]; then
+              echo "build=${{ inputs.build_riscv64 }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ "${{ matrix.job.target }}" == "ppc64le-linux-gnu" ]; then
+              echo "build=${{ inputs.build_ppc64le }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ "${{ matrix.job.target }}" == "s390x-linux-gnu" ]; then
+              echo "build=${{ inputs.build_s390x }}" >> $GITHUB_OUTPUT
+            fi
+
+            export BUILD_VERSION_V="${{ inputs.verison }}"
+          fi
+
+          export BUILD_VERSION="${BUILD_VERSION_V#v}"
+          echo "version=${BUILD_VERSION}" >> $GITHUB_OUTPUT
+
+          if [ "${{ matrix.job.image }}" == "manylinux" ]; then
+            export le332="$(echo "${BUILD_VERSION}\n3.3.2" | sort -C -V && echo le || echo gt)"
+            if [ "${le332}" = "le" ]; then
+              echo "image=quay.io/pypa/manylinux2014_${{ matrix.job.arch }}" >> $GITHUB_OUTPUT
+            else
+              echo "image=quay.io/pypa/manylinux_2_28_${{ matrix.job.arch }}" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "image=${{ matrix.job.image }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Restore Source Code
+        if: steps.build-check.outputs.build == 'true'
+        id: cache-src
+        uses: actions/cache/restore@v4
+        with:
+          key: src-${{ steps.build-check.outputs.version }}
+          path: |
+            ./openssl-${{ steps.build-check.outputs.version }}.tar.gz
+
+      - name: Get source code
+        if: steps.build-check.outputs.build == 'true' && steps.cache-src.outputs.cache-hit != 'true'
+        run: |
+          export BUILD_VERSION="${{ steps.build-check.outputs.version }}"
+          export SRC_FILENAME="openssl-${BUILD_VERSION}.tar.gz"
+          if [[ "${BUILD_VERSION}" == 3.* ]]; then
+            curl -fSL "https://www.openssl.org/source/${SRC_FILENAME}" -o "${SRC_FILENAME}"
+          elif [[ "${BUILD_VERSION}" == 1.1.1* ]]; then
+            curl -fSL "https://openssl.org/source/old/1.1.1/${SRC_FILENAME}" -o "${SRC_FILENAME}"
+          fi
+
+      - name: Cache Source Code
+        if: steps.build-check.outputs.build == 'true' && steps.cache-src.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: src-${{ steps.build-check.outputs.version }}
+          path: |
+            ./openssl-${{ steps.build-check.outputs.version }}.tar.gz
+
+      - name: Checkout
+        if: steps.build-check.outputs.build == 'true'
+        uses: actions/checkout@v4
+
+      - name: Pull docker image
+        if: steps.build-check.outputs.build == 'true'
+        run: |
+          sudo docker pull --platform="${{ matrix.job.platform }}" "${{ steps.build-check.outputs.image }}"
+          if [ "${{ matrix.job.arch }}" != "$(uname -m)" ]; then
+            sudo apt-get update
+            sudo apt-get install -y binfmt-support qemu-user-static
+          fi
+
+      - name: Compile
+        if: steps.build-check.outputs.build == 'true'
+        run: |
+          export OPENSSL_VERSION=${{ steps.build-check.outputs.version }}
+          cp .github/script-to-build-gnu.sh ./
+          cp .github/do-build.sh ./
+
+          bash ./script-to-build-gnu.sh "${OPENSSL_VERSION}" "${{ matrix.job.arch }}" "${{ steps.build-check.outputs.image }}"
+
+      - name: Upload binaries
+        uses: softprops/action-gh-release@v2
+        if: steps.build-check.outputs.build == 'true'
+        with:
+          tag_name: v${{ steps.build-check.outputs.version }}
+          name: v${{ steps.build-check.outputs.version }}
+          files: |
+            openssl-*.tar.gz
+            openssl-*.sha256

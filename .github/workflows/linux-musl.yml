@@ -1,4 +1,4 @@
-name: precompile-linux-gnu
+name: linux-musl
 
 on:
   workflow_dispatch:
@@ -22,8 +22,8 @@ on:
         options:
           - true
           - false
-      build_i686:
-        description: 'Build i686'
+      build_i386:
+        description: 'Build i386'
         required: false
         default: 'true'
         type: choice
@@ -67,7 +67,7 @@ permissions:
   contents: write
 
 jobs:
-  linux-glibc:
+  linux-musl:
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.job.target }}-${{ inputs.verison }}
@@ -76,13 +76,13 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { target: "x86_64-linux-gnu", arch: "x86_64", image: "manylinux", platform: "linux/amd64" }
-          - { target: "i686-linux-gnu", arch: "i686", image: "manylinux", platform: "linux/386" }
-          - { target: "aarch64-linux-gnu", arch: "aarch64", image: "manylinux", platform: "linux/aarch64" }
-          - { target: "armv7l-linux-gnueabihf", arch: "armv7l", image: "ubuntu:20.04", platform: "linux/arm/v7" }
-          - { target: "riscv64-linux-gnu", arch: "riscv64", image: "ubuntu:20.04", platform: "linux/riscv64" }
-          - { target: "ppc64le-linux-gnu", arch: "ppc64le", image: "manylinux", platform: "linux/ppc64le" }
-          - { target: "s390x-linux-gnu", arch: "s390x", image: "manylinux", platform: "linux/s390x" }
+          - { target: "x86_64-linux-musl", arch: "x86_64", image: "musllinux_1_1", platform: "linux/amd64" }
+          - { target: "i386-linux-musl", arch: "i386", image: "musllinux_1_1", platform: "linux/386" }
+          - { target: "aarch64-linux-musl", arch: "aarch64", image: "musllinux_1_1", platform: "linux/aarch64" }
+          - { target: "armv7l-linux-musl", arch: "armv7l", image: "musllinux_1_2", platform: "linux/arm/v7" }
+          - { target: "riscv64-linux-musl", arch: "riscv64", image: "alpine:edge", platform: "linux/riscv64" }
+          - { target: "ppc64le-linux-musl", arch: "ppc64le", image: "musllinux_1_1", platform: "linux/ppc64le" }
+          - { target: "s390x-linux-musl", arch: "s390x", image: "musllinux_1_1", platform: "linux/s390x" }
 
     name: ${{ matrix.job.target }}
 
@@ -94,31 +94,31 @@ jobs:
             echo "build=true" >> $GITHUB_OUTPUT
             export BUILD_VERSION_V="v${GITHUB_REF##*/v}"
           else
-            if [ "${{ matrix.job.target }}" == "aarch64-linux-gnu" ]; then
+            if [ "${{ matrix.job.target }}" == "aarch64-linux-musl" ]; then
               echo "build=${{ inputs.build_aarch64 }}" >> $GITHUB_OUTPUT
             fi
 
-            if [ "${{ matrix.job.target }}" == "x86_64-linux-gnu" ]; then
+            if [ "${{ matrix.job.target }}" == "x86_64-linux-musl" ]; then
               echo "build=${{ inputs.build_x86_64 }}" >> $GITHUB_OUTPUT
             fi
 
-            if [ "${{ matrix.job.target }}" == "i686-linux-gnu" ]; then
-              echo "build=${{ inputs.build_i686 }}" >> $GITHUB_OUTPUT
+            if [ "${{ matrix.job.target }}" == "i386-linux-musl" ]; then
+              echo "build=${{ inputs.build_i386 }}" >> $GITHUB_OUTPUT
             fi
 
-            if [ "${{ matrix.job.target }}" == "armv7l-linux-gnueabihf" ]; then
+            if [ "${{ matrix.job.target }}" == "armv7l-linux-musleabihf" ]; then
               echo "build=${{ inputs.build_armv7l }}" >> $GITHUB_OUTPUT
             fi
 
-            if [ "${{ matrix.job.target }}" == "riscv64-linux-gnu" ]; then
+            if [ "${{ matrix.job.target }}" == "riscv64-linux-musl" ]; then
               echo "build=${{ inputs.build_riscv64 }}" >> $GITHUB_OUTPUT
             fi
 
-            if [ "${{ matrix.job.target }}" == "ppc64le-linux-gnu" ]; then
+            if [ "${{ matrix.job.target }}" == "ppc64le-linux-musl" ]; then
               echo "build=${{ inputs.build_ppc64le }}" >> $GITHUB_OUTPUT
             fi
 
-            if [ "${{ matrix.job.target }}" == "s390x-linux-gnu" ]; then
+            if [ "${{ matrix.job.target }}" == "s390x-linux-musl" ]; then
               echo "build=${{ inputs.build_s390x }}" >> $GITHUB_OUTPUT
             fi
 
@@ -127,17 +127,7 @@ jobs:
 
           export BUILD_VERSION="${BUILD_VERSION_V#v}"
           echo "version=${BUILD_VERSION}" >> $GITHUB_OUTPUT
-
-          if [ "${{ matrix.job.image }}" == "manylinux" ]; then
-            export le332="$(echo "${BUILD_VERSION}\n3.3.2" | sort -C -V && echo le || echo gt)"
-            if [ "${le332}" = "le" ]; then
-              echo "image=quay.io/pypa/manylinux2014_${{ matrix.job.arch }}" >> $GITHUB_OUTPUT
-            else
-              echo "image=quay.io/pypa/manylinux_2_28_${{ matrix.job.arch }}" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "image=${{ matrix.job.image }}" >> $GITHUB_OUTPUT
-          fi
+          echo "image=${{ matrix.job.image }}" >> $GITHUB_OUTPUT
 
       - name: Restore Source Code
         if: steps.build-check.outputs.build == 'true'
@@ -179,6 +169,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y binfmt-support qemu-user-static
           fi
+          sudo docker image ls "${{ steps.build-check.outputs.image }}"
 
       - name: Compile
         if: steps.build-check.outputs.build == 'true'
