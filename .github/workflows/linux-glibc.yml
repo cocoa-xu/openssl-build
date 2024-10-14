@@ -82,7 +82,7 @@ jobs:
           - { target: "x86_64-linux-gnu", arch: "x86_64", image: "manylinux", platform: "linux/amd64" }
           - { target: "i686-linux-gnu", arch: "i686", image: "manylinux", platform: "linux/386" }
           - { target: "aarch64-linux-gnu", arch: "aarch64", image: "manylinux", platform: "linux/aarch64" }
-          - { target: "armv7l-linux-gnueabihf", arch: "armv7l", image: "arm32v7/ubuntu:20.04", platform: "linux/arm/v7" }
+          - { target: "armv7l-linux-gnueabihf", arch: "armv7l", image: "ubuntu:20.04", platform: "linux/arm/v7" }
           - { target: "riscv64-linux-gnu", arch: "riscv64", image: "ubuntu:20.04", platform: "linux/riscv64" }
           - { target: "ppc64le-linux-gnu", arch: "ppc64le", image: "manylinux", platform: "linux/ppc64le" }
           - { target: "s390x-linux-gnu", arch: "s390x", image: "manylinux", platform: "linux/s390x" }
