@@ -53,6 +53,9 @@ cd "openssl-${OPENSSL_VERSION}"
 case $OPENSSL_VERSION in
   3.* )
     case $TRIPLET in
+      armv7l-linux-*eabihf )
+        ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests linux-generic32 -march=armv7-a
+        ;;
       *i386* | *i686* )
         ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests linux-generic32 -m32
         ;;
@@ -63,6 +66,9 @@ case $OPENSSL_VERSION in
     ;;
   1.1.1* )
     case $TRIPLET in
+      armv7l-linux-*eabihf )
+        ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests linux-generic32 -march=armv7-a
+        ;;
       *i386* | *i686* )
         ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" linux-generic32 -m32
         ;;
