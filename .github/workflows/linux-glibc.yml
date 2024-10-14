@@ -33,7 +33,7 @@ on:
       build_armv7l:
         description: 'Build armv7l'
         required: false
-        default: 'false'
+        default: 'true'
         type: choice
         options:
           - true
