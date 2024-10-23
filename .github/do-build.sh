@@ -23,7 +23,7 @@ case $TRIPLET in
       cpanm Math::BigInt ;
     fi
     ;;
-  *-linux-musl )
+  *-linux-musl* )
     apk add make curl gcc g++ perl linux-headers
     ;;
   * )
