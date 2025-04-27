@@ -168,7 +168,7 @@ jobs:
 
             make -j$(getconf NPROCESSORS_ONLN)
             make -j$(getconf NPROCESSORS_ONLN) install_sw
-            make -j$(getconf NPROCESSORS_ONLN)install_ssldirs
+            make -j$(getconf NPROCESSORS_ONLN) install_ssldirs
 
             cd "${PERFIX_DIR}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
