@@ -18,7 +18,7 @@ jobs:
   windows:
     runs-on: windows-2019
     env:
-      PERL5_VERSION: "5.38.2"
+      PERL5_VERSION: "5.41.12"
     strategy:
       matrix:
         include:
