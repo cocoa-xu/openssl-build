@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { target: "x86_64-apple-darwin", arch: "x86_64", runs-on: macos-12 }
+          - { target: "x86_64-apple-darwin", arch: "x86_64", runs-on: macos-13 }
           - { target: "arm64-apple-darwin", arch: "arm64", runs-on: macos-14 }
 
     name: ${{ matrix.job.arch }}-apple-darwin
