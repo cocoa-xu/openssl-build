@@ -24,7 +24,7 @@ case $TRIPLET in
     fi
     ;;
   *-linux-musl* )
-    apk add make curl gcc g++ perl linux-headers
+    apk add make curl gcc g++ perl linux-headers git patch
     ;;
   * )
     echo "Unknown triplet: ${TRIPLET}"
