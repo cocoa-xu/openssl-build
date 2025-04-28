@@ -10,7 +10,7 @@ PERFIX_DIR="/openssl-${TRIPLET}"
 case $TRIPLET in
   riscv64-linux-gnu )
     apt-get update && \
-    apt-get install -y gcc g++ curl make automake autoconf libncurses5-dev perl python3
+    apt-get install -y gcc g++ curl make automake autoconf libncurses5-dev perl python3 patch git
     ;;
   armv7l-linux-gnueabihf )
     apt-get update && \
@@ -80,6 +80,19 @@ case $OPENSSL_VERSION in
   * )
     echo "Unknown version: ${OPENSSL_VERSION}"
     exit 1
+    ;;
+esac
+
+# patch for riscv64
+case $OPENSSL_VERSION in
+  3.* )
+    case $TRIPLET in
+      riscv64-* )
+        git apply /work/patches/riscv_vlen_asm.patch
+        ;;
+    esac
+    ;;
+  * )
     ;;
 esac
 
