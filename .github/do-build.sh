@@ -50,6 +50,19 @@ esac
 tar -xf "openssl-${OPENSSL_VERSION}.tar.gz"
 cd "openssl-${OPENSSL_VERSION}"
 
+# patch for riscv64
+case $OPENSSL_VERSION in
+  3.* )
+    case $TRIPLET in
+      riscv64-* )
+        git apply /work/patches/riscv_vlen_asm.patch
+        ;;
+    esac
+    ;;
+  * )
+    ;;
+esac
+
 case $OPENSSL_VERSION in
   3.* )
     case $TRIPLET in
@@ -80,19 +93,6 @@ case $OPENSSL_VERSION in
   * )
     echo "Unknown version: ${OPENSSL_VERSION}"
     exit 1
-    ;;
-esac
-
-# patch for riscv64
-case $OPENSSL_VERSION in
-  3.* )
-    case $TRIPLET in
-      riscv64-* )
-        git apply /work/patches/riscv_vlen_asm.patch
-        ;;
-    esac
-    ;;
-  * )
     ;;
 esac
 
