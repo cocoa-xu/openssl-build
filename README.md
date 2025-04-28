@@ -13,7 +13,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td></td>
     <td></td>
     <td><b>Version →</b></td>
-    <td>3.4.0</td>
+    <td>3.5.0</td>
     <td>3.4.0-3.4.1</td>
     <td>3.3.2-3.3.3<sup>1</sup></td>
     <td>3.3.0-3.3.1</td>
@@ -47,9 +47,9 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
   </tr>
   <tr>
     <td>i686</td>
-    <td></td>
-    <td></td>
-    <td><sup>2</sup></td>
+    <td>✓</td>
+    <td>✓</td>
+    <td>?</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
