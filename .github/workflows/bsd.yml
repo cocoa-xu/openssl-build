@@ -125,6 +125,8 @@ jobs:
             
             cd "${PERFIX_DIR}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+            cd "${ROOT_DIR}"
+            sha256sum "openssl-${TRIPLET}.tar.gz" | tee "openssl-${TRIPLET}.tar.gz.sha256"
 
       - name: Compile in OpenBSD
         if: steps.build-check.outputs.build == 'true' && matrix.job.target == 'x86_64-unknown-openbsd'
@@ -172,6 +174,8 @@ jobs:
 
             cd "${PERFIX_DIR}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+            cd "${ROOT_DIR}"
+            sha256sum "openssl-${TRIPLET}.tar.gz" | tee "openssl-${TRIPLET}.tar.gz.sha256"
 
       - name: Compile in NetBSD
         if: steps.build-check.outputs.build == 'true' && matrix.job.target == 'x86_64-unknown-netbsd'
@@ -219,6 +223,8 @@ jobs:
 
             cd "${PERFIX_DIR}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+            cd "${ROOT_DIR}"
+            sha256sum "openssl-${TRIPLET}.tar.gz" | tee "openssl-${TRIPLET}.tar.gz.sha256"
 
       - name: Upload binaries
         uses: softprops/action-gh-release@v2
@@ -228,3 +234,4 @@ jobs:
           name: v${{ steps.build-check.outputs.version }}
           files: |
             openssl-*.tar.gz
+            openssl-*.tar.gz.sha256
