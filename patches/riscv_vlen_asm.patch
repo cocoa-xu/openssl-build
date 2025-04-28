@@ -1,47 +1,26 @@
 diff --git a/crypto/riscv32cpuid.pl b/crypto/riscv32cpuid.pl
-index 5ee7df0ea6..652bca57bb 100644
+index 5ee7df0ea6..901b5bf5a1 100644
 --- a/crypto/riscv32cpuid.pl
 +++ b/crypto/riscv32cpuid.pl
-@@ -93,9 +93,16 @@ $code .= <<___;
- .p2align 3
- .globl riscv_vlen_asm
- .type riscv_vlen_asm,\@function
--riscv_vlen_asm:
--    csrr $ret, vlenb
--    slli $ret, $ret, 3
-+    csrrs   $t0,misa,x0
-+    andi    $t0,$t0,(1<<20)
-+    beqz    $t0,no_vector_extension
-+    .equ    vlenb,0xC22
-+    csrr    $ret,vlenb
-+    slli    $ret,$ret,3
-+    ret
-+
-+no_vector_extension:
-+    li      $ret,0
-     ret
- .size riscv_vlen_asm,.-riscv_vlen_asm
- ___
-diff --git a/crypto/riscv64cpuid.pl b/crypto/riscv64cpuid.pl
-index 5dcdc5c584..b0958dd7bd 100644
---- a/crypto/riscv64cpuid.pl
-+++ b/crypto/riscv64cpuid.pl
-@@ -94,8 +94,16 @@ $code .= <<___;
+@@ -94,7 +94,7 @@ $code .= <<___;
  .globl riscv_vlen_asm
  .type riscv_vlen_asm,\@function
  riscv_vlen_asm:
 -    csrr $ret, vlenb
--    slli $ret, $ret, 3
-+    csrrs   $t0,misa,x0
-+    andi    $t0,$t0,(1<<20)
-+    beqz    $t0,no_vector_extension
-+    .equ    vlenb,0xC22
-+    csrr    $ret,vlenb
-+    slli    $ret,$ret,3
-+    ret
-+
-+no_vector_extension:
-+    li      $ret,0
++    csrr $ret, 0xC22
+     slli $ret, $ret, 3
      ret
  .size riscv_vlen_asm,.-riscv_vlen_asm
- ___
+diff --git a/crypto/riscv64cpuid.pl b/crypto/riscv64cpuid.pl
+index 5dcdc5c584..ee472de8f3 100644
+--- a/crypto/riscv64cpuid.pl
++++ b/crypto/riscv64cpuid.pl
+@@ -94,7 +94,7 @@ $code .= <<___;
+ .globl riscv_vlen_asm
+ .type riscv_vlen_asm,\@function
+ riscv_vlen_asm:
+-    csrr $ret, vlenb
++    csrr $ret, 0xC22
+     slli $ret, $ret, 3
+     ret
+ .size riscv_vlen_asm,.-riscv_vlen_asm
