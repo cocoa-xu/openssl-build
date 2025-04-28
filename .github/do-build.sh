@@ -51,11 +51,16 @@ tar -xf "openssl-${OPENSSL_VERSION}.tar.gz"
 cd "openssl-${OPENSSL_VERSION}"
 
 # patch for riscv64
-case $OPENSSL_VERSION in
-  3.* )
-    case $TRIPLET in
-      riscv64-* )
+case $TRIPLET in
+  riscv64-* )
+    case $OPENSSL_VERSION in
+      3.3.0 )
+        git apply /work/patches/openssl-3.3.0-riscv_vlen_asm.patch
+        ;;
+      3.* )
         git apply /work/patches/riscv_vlen_asm.patch
+        ;;
+      * )
         ;;
     esac
     ;;
