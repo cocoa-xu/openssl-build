@@ -9,27 +9,18 @@ on:
       build_freebsd:
         description: 'Build FreeBSD'
         required: false
-        default: 'true'
-        type: choice
-        options:
-          - true
-          - false
+        default: true
+        type: boolean
       build_openbsd:
         description: 'Build OpenBSD'
         required: false
-        default: 'true'
-        type: choice
-        options:
-          - true
-          - false
+        default: true
+        type: boolean
       build_netbsd:
         description: 'Build NetBSD'
         required: false
-        default: 'true'
-        type: choice
-        options:
-          - true
-          - false
+        default: true
+        type: boolean
   push:
     tags:
       - 'v*'
