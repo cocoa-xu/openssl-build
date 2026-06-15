@@ -40,7 +40,7 @@ jobs:
         job:
           - { os: "freebsd", target: "x86_64-unknown-freebsd", version: "13.2" }
           - { os: "openbsd", target: "x86_64-unknown-openbsd", version: "7.7" }
-          - { os: "netbsd", target: "x86_64-unknown-netbsd", version: "9.0" }
+          - { os: "netbsd", target: "x86_64-unknown-netbsd", version: "9.4" }
 
     name: ${{ matrix.job.target }} - ${{ matrix.job.version }}
 
@@ -176,8 +176,9 @@ jobs:
           release: ${{ matrix.job.version }}
           usesh: true
           prepare: |
-            /usr/sbin/pkg_add curl perl mozilla-rootcerts
-            /usr/pkg/sbin/mozilla-rootcerts install
+            /usr/sbin/pkg_add curl perl
+            [ -x /usr/pkg/sbin/mozilla-rootcerts ] || /usr/sbin/pkg_add mozilla-rootcerts
+            /usr/pkg/sbin/mozilla-rootcerts install || true
 
           run: |
             export ROOT_DIR="$(pwd)"
@@ -186,6 +187,9 @@ jobs:
             echo "OpenSSL Version: ${OPENSSL_VERSION}"
             export PERFIX_DIR="/tmp/openssl-${TRIPLET}"
             mkdir -p "${PERFIX_DIR}"
+            for _ca in /usr/pkg/etc/openssl/certs /etc/openssl/certs /etc/ssl/certs; do
+              [ -f "${_ca}/ca-certificates.crt" ] && export CURL_CA_BUNDLE="${_ca}/ca-certificates.crt" && break
+            done
             case "${OPENSSL_VERSION}" in
               3.*)
                 curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
