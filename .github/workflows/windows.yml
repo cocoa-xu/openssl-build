@@ -21,7 +21,8 @@ jobs:
   windows:
     runs-on: windows-2022
     env:
-      PERL5_VERSION: "5.41.12"
+      PERL5_VERSION: "5.43.11"
+      NASM_VERSION: "3.01"
     strategy:
       matrix:
         include:
@@ -84,9 +85,9 @@ jobs:
           rm -rf openssl-${OPENSSL_VERSION}.tar.gz
 
           if [ "${{ matrix.pair.arch }}" = "x86_64" ]; then
-            curl -fSL "https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/nasm-2.16.01-win64.zip" -o "nasm-2.16.01-win64.zip"
-            unzip -q "nasm-2.16.01-win64.zip" -d /c/nasm
-            rm -rf nasm-2.16.01-win64.zip
+            curl -fSL "https://www.nasm.us/pub/nasm/releasebuilds/${{ matrix.pair.nasm_version }}/win64/nasm-${{ matrix.pair.nasm_version }}-win64.zip" -o "nasm-${{ matrix.pair.nasm_version }}-win64.zip"
+            unzip -q "nasm-${{ matrix.pair.nasm_version }}-win64.zip" -d /c/nasm
+            rm -rf nasm-${{ matrix.pair.nasm_version }}-win64.zip
           fi
 
           # Remove the link command to avoid conflict with the Windows built-in command
@@ -108,7 +109,7 @@ jobs:
             cmd.exe /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
             perl Configure VC-WIN64-ARM no-tests $lib_type --prefix=C:\OpenSSL-Win64 --openssldir=C:\OpenSSL-Win64
           } else {
-            $env:Path = "C:\nasm\nasm-2.16.01;" + $env:Path
+            $env:Path = "C:\nasm\nasm-${{ matrix.pair.nasm_version }};" + $env:Path
             perl Configure VC-WIN64A no-tests $lib_type --prefix=C:\OpenSSL-Win64 --openssldir=C:\OpenSSL-Win64
           }
 
