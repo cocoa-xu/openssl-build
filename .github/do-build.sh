@@ -17,7 +17,7 @@ case $TRIPLET in
     apt-get install -y gcc g++ curl make automake autoconf libncurses5-dev perl python3
     ;;
   *-linux-gnu )
-    yum install -y curl automake autoconf openssl-devel ncurses-devel perl-IPC-Cmd python3
+    yum install -y curl automake autoconf openssl-devel ncurses-devel perl-IPC-Cmd perl-Time-Piece python3
     if [ "${TRIPLET}" = "s390x-linux-gnu" ]; then
       yum install -y perl-App-cpanminus && \
       cpanm Math::BigInt ;
