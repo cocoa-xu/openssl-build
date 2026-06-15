@@ -185,7 +185,7 @@ jobs:
           release: ${{ matrix.job.version }}
           usesh: true
           prepare: |
-            /usr/sbin/pkg_add curl perl
+            /usr/sbin/pkg_add curl perl mozilla-rootcerts-openssl
 
           run: |
             export ROOT_DIR="$(pwd)"
