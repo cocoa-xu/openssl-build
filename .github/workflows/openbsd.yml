@@ -1,4 +1,4 @@
-name: precompile-openbsd
+name: openbsd
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: precompile-windows
+name: windows
 
 on:
   workflow_dispatch:

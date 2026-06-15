@@ -1,4 +1,4 @@
-name: precompile-freebsd
+name: freebsd
 
 on:
   workflow_dispatch:

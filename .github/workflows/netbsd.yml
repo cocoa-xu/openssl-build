@@ -1,4 +1,4 @@
-name: precompile-netbsd
+name: netbsd
 
 on:
   workflow_dispatch:
