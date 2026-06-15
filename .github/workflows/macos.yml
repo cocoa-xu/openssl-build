@@ -9,19 +9,13 @@ on:
       build_arm64:
         description: 'Build ARM64'
         required: false
-        default: 'true'
-        type: choice
-        options:
-          - true
-          - false
+        default: true
+        type: boolean
       build_x86_64:
         description: 'Build x86_64'
         required: false
-        default: 'true'
-        type: choice
-        options:
-          - true
-          - false
+        default: true
+        type: boolean
   push:
     tags:
       - "v*"
