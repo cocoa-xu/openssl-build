@@ -50,21 +50,15 @@ esac
 tar -xf "openssl-${OPENSSL_VERSION}.tar.gz"
 cd "openssl-${OPENSSL_VERSION}"
 
-# patch for riscv64
+# riscv64: old binutils can't assemble `csrr $ret, vlenb`; rewrite it to
+# the CSR number. No-op on newer openssl that already uses 0xc22.
 case $TRIPLET in
   riscv64-* )
     case $OPENSSL_VERSION in
-      3.3.0 )
-        git apply /work/patches/openssl-3.3.0-riscv_vlen_asm.patch
-        ;;
       3.* )
-        git apply /work/patches/riscv_vlen_asm.patch
-        ;;
-      * )
+        sed -i 's/csrr $ret, vlenb/csrr $ret, 0xC22/' crypto/riscv32cpuid.pl crypto/riscv64cpuid.pl
         ;;
     esac
-    ;;
-  * )
     ;;
 esac
 
