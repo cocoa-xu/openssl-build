@@ -107,14 +107,3 @@ jobs:
         with:
           files: |
             openssl-*.tar.gz
-
-  deploy-windows:
-    runs-on: ubuntu-latest
-    needs: windows
-    steps:
-      - name: deploy
-        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'cocoa-xu/openssl-build'
-        env:
-          DEPLOY_WINDOWS_HOOK_URL: ${{ secrets.DEPLOY_WINDOWS_HOOK_URL }}
-        run: |
-          curl -sS --no-progress-meter "${DEPLOY_WINDOWS_HOOK_URL}${{ github.ref_name }}"
