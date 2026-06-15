@@ -173,7 +173,7 @@ jobs:
           bash ./script-to-build-gnu.sh "${OPENSSL_VERSION}" "${{ matrix.job.arch }}" "${{ steps.build-check.outputs.image }}" "${{ matrix.job.platform }}"
 
       - name: Upload binaries
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         if: steps.build-check.outputs.build == 'true'
         with:
           tag_name: v${{ steps.build-check.outputs.version }}

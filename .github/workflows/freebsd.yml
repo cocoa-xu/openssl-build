@@ -80,7 +80,7 @@ jobs:
             sha256sum "openssl-${TRIPLET}.tar.gz" | tee "openssl-${TRIPLET}.tar.gz.sha256"
 
       - name: Upload binaries
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}

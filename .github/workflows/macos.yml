@@ -124,7 +124,7 @@ jobs:
           cd "${ROOTDIR}/build/"
           shasum -a 256 "${FILENAME}" | tee "${FILENAME}.sha256"
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         if: steps.build-check.outputs.build == 'true'
         with:
           tag_name: v${{ steps.build-check.outputs.version }}
