@@ -176,7 +176,8 @@ jobs:
           release: ${{ matrix.job.version }}
           usesh: true
           prepare: |
-            /usr/sbin/pkg_add curl perl mozilla-rootcerts-openssl
+            /usr/sbin/pkg_add curl perl mozilla-rootcerts
+            /usr/pkg/sbin/mozilla-rootcerts install
 
           run: |
             export ROOT_DIR="$(pwd)"
