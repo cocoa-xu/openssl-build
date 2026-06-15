@@ -1,0 +1,89 @@
+name: precompile-freebsd
+
+on:
+  workflow_dispatch:
+    inputs:
+      verison:
+        description: 'OpenSSL Version'
+        required: true
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.verison }}
+      cancel-in-progress: true
+    name: x86_64-unknown-freebsd - 13.5
+
+    steps:
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            export BUILD_VERSION_V="v${GITHUB_REF##*/v}"
+          else
+            export BUILD_VERSION_V="${{ inputs.verison }}"
+          fi
+          echo "version=${BUILD_VERSION_V#v}" >> $GITHUB_OUTPUT
+
+      - name: Compile in FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: '13.5'
+          usesh: true
+          prepare: |
+            pkg install -y curl perl5
+
+          run: |
+            export ROOT_DIR="$(pwd)"
+            export TRIPLET="x86_64-unknown-freebsd"
+            export OPENSSL_VERSION="${{ steps.version.outputs.version }}"
+            echo "OpenSSL Version: ${OPENSSL_VERSION}"
+            export PERFIX_DIR="/tmp/openssl-${TRIPLET}"
+            mkdir -p "${PERFIX_DIR}"
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+              1.1.1*)
+                curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                ;;
+              *)
+                echo "Unsupported version: ${OPENSSL_VERSION}"
+                exit 1
+                ;;
+            esac
+            tar xf "openssl-${OPENSSL_VERSION}.tar.gz" && rm -f "openssl-${OPENSSL_VERSION}.tar.gz"
+            cd "openssl-${OPENSSL_VERSION}"
+            case "${OPENSSL_VERSION}" in
+              3.*)
+                ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
+                ;;
+              1.1.1*)
+                ./config --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}"
+                ;;
+            esac
+
+            make -j$(nproc)
+            make -j$(nproc) install_sw
+            make -j$(nproc) install_ssldirs
+
+            cd "${PERFIX_DIR}"
+            tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
+            cd "${ROOT_DIR}"
+            sha256sum "openssl-${TRIPLET}.tar.gz" | tee "openssl-${TRIPLET}.tar.gz.sha256"
+
+      - name: Upload binaries
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          files: |
+            openssl-*.tar.gz
+            openssl-*.tar.gz.sha256
