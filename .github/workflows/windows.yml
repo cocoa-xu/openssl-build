@@ -45,6 +45,18 @@ jobs:
     name: ${{ matrix.pair.arch }}-windows-msvc / ${{ matrix.pair.shared }}
 
     steps:
+      - name: Build Check
+        id: build-check
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            export BUILD_VERSION_V="v${GITHUB_REF##*/v}"
+          else
+            export BUILD_VERSION_V="${{ inputs.openssl_verison }}"
+          fi
+          export BUILD_VERSION="${BUILD_VERSION_V#v}"
+          echo "version=${BUILD_VERSION}" >> $GITHUB_OUTPUT
+
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.pair.vcvarsall }}
@@ -60,8 +72,7 @@ jobs:
       - name: Download OpenSSL Source Code
         shell: bash
         run: |
-          export OPENSSL_VERSION=${{ github.event.inputs.openssl_verison }}
-          export OPENSSL_VERSION=${OPENSSL_VERSION#v}
+          export OPENSSL_VERSION="${{ steps.build-check.outputs.version }}"
           echo "OpenSSL Version: $OPENSSL_VERSION"
           echo -n "$OPENSSL_VERSION" > /c/openssl_version.txt
           if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
@@ -111,7 +122,7 @@ jobs:
 
       - uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ github.event.inputs.openssl_verison }}
-          name: ${{ github.event.inputs.openssl_verison }}
+          tag_name: v${{ steps.build-check.outputs.version }}
+          name: v${{ steps.build-check.outputs.version }}
           files: |
             openssl-*.tar.gz
