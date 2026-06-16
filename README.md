@@ -12,11 +12,11 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
   <tr>
     <td></td>
     <td></td>
-    <td><b>Version →</b></td>
-    <td>3.5.0</td>
-    <td>3.4.0-3.4.1</td>
-    <td>3.3.2-3.3.3<sup>1</sup></td>
-    <td>3.3.0-3.3.1</td>
+    <td><b>Version →</b><sup>4</sup></td>
+    <td>3.6.x</td>
+    <td>3.5.x</td>
+    <td>3.4.x</td>
+    <td>3.3.x</td>
     <td>3.2.1</td>
     <td>3.2.0</td>
     <td>1.1.1w</td>
@@ -34,8 +34,8 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td></td>
   </tr>
   <tr>
-    <td rowspan="12">Linux</td>
-    <td rowspan="6">gnu</td>
+    <td rowspan="14">Linux</td>
+    <td rowspan="7">gnu<sup>1</sup></td>
     <td>x86_64</td>
     <td>✓</td>
     <td>✓</td>
@@ -46,14 +46,24 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
   </tr>
   <tr>
-    <td>i686</td>
-    <td>✓</td>
-    <td>✓</td>
-    <td>?</td>
+    <td>i686<sup>2</sup></td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
+    <td>✓</td>
+    <td>✓</td>
+  </tr>
+  <tr>
+    <td>armv7l</td>
+    <td>✓</td>
+    <td>✓</td>
+    <td>✓</td>
+    <td>✓</td>
+    <td></td>
+    <td></td>
+    <td></td>
   </tr>
   <tr>
     <td>aarch64</td>
@@ -76,7 +86,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
   </tr>
   <tr>
-    <td>ppcle64</td>
+    <td>ppc64le</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -96,7 +106,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
   </tr>
   <tr>
-    <td rowspan="6">musl</td>
+    <td rowspan="7">musl</td>
     <td>x86_64</td>
     <td>✓</td>
     <td>✓</td>
@@ -115,6 +125,16 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+  </tr>
+  <tr>
+    <td>armv7l</td>
+    <td>✓</td>
+    <td>✓</td>
+    <td>✓</td>
+    <td>✓</td>
+    <td></td>
+    <td></td>
+    <td></td>
   </tr>
   <tr>
     <td>aarch64</td>
@@ -137,7 +157,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
   </tr>
   <tr>
-    <td>ppcle64</td>
+    <td>ppc64le</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -201,7 +221,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
   </tr>
   <tr>
-    <td rowspan="2">FreeBSD</td>
+    <td>FreeBSD<sup>3</sup></td>
     <td>13</td>
     <td>x86_64</td>
     <td>✓</td>
@@ -213,18 +233,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
   </tr>
   <tr>
-    <td>14</td>
-    <td>x86_64</td>
-    <td>✓</td>
-    <td>✓</td>
-    <td>✓</td>
-    <td>✓</td>
-    <td>✓</td>
-    <td>✓</td>
-    <td>✓</td>
-  </tr>
-  <tr>
-    <td>OpenBSD</td>
+    <td>OpenBSD<sup>3</sup></td>
     <td>7</td>
     <td>x86_64</td>
     <td>✓</td>
@@ -236,7 +245,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
   </tr>
   <tr>
-    <td>NetBSD</td>
+    <td>NetBSD<sup>3</sup></td>
     <td>9</td>
     <td>x86_64</td>
     <td>✓</td>
@@ -251,9 +260,13 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
 </table>
 
 <footer>
-  
-  *1. `manylinux_2_28_$ARCH` will be used for `x86_64`, `aarch64`, `ppc64le` and `s390x` with glibc Starting from OpenSSL 3.3.2*
 
-  *2. Support for i686-linux-gnu is deprecated*
-  
+  *1. `manylinux_2_28_$ARCH` will be used for `x86_64`, `aarch64`, `ppc64le` and `s390x` with glibc starting from OpenSSL 3.3.2*
+
+  *2. Support for `i686-linux-gnu` is deprecated*
+
+  *3. Through 3.3.2, FreeBSD shipped as separate `freebsd13` and `freebsd14` archives; from 3.3.3 a single unversioned `freebsd` archive is published (currently built on FreeBSD 13.5). NetBSD (`netbsd9` → `netbsd`, 9.4) and OpenBSD (`openbsd7` → `openbsd`, 7.7) were renamed the same way.*
+
+  *4. Cells reflect the latest patch of each series. Some intermediate patches shipped incomplete asset sets — e.g. 3.3.5, 3.5.1–3.5.4 and 3.6.0 are missing some glibc and/or Windows builds.*
+
 </footer>
