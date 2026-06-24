@@ -6,6 +6,11 @@ on:
 jobs:
   auto-update:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        series: ["3.0", "3.5", "3.6", "4"]
+    name: ${{ matrix.series }}.x
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,16 +21,16 @@ jobs:
         id: openssl-version
         run: |
           pip3 install -U lastversion
-          OPENSSL_VERSION=$(lastversion openssl)
+          OPENSSL_VERSION=$(lastversion openssl --major ${{ matrix.series }})
           echo "tag=v${OPENSSL_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Check if tag exists
         uses: mukunku/tag-exists-action@v1.5.0
         id: check-tag
-        with: 
+        with:
           tag: ${{ steps.openssl-version.outputs.tag }}
           repo: 'cocoa-xu/openssl-build'
-      
+
       - name: Update if tag not exists
         if: steps.check-tag.outputs.exists == 'false'
         run: |
