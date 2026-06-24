@@ -5,7 +5,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
 <table>
 <thead>
   <tr>
-    <th colspan="10">Availability<br></th>
+    <th colspan="11">Availability<br></th>
   </tr>
 </thead>
 <tbody>
@@ -13,6 +13,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td></td>
     <td></td>
     <td><b>Version →</b><sup>4</sup></td>
+    <td>4.0.x</td>
     <td>3.6.x</td>
     <td>3.5.x</td>
     <td>3.4.x</td>
@@ -32,11 +33,13 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td></td>
     <td></td>
     <td></td>
+    <td></td>
   </tr>
   <tr>
     <td rowspan="14">Linux</td>
     <td rowspan="7">gnu<sup>1</sup></td>
     <td>x86_64</td>
+    <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -54,9 +57,11 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
   </tr>
   <tr>
     <td>armv7l</td>
+    <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -74,9 +79,11 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
   </tr>
   <tr>
     <td>riscv64</td>
+    <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -94,9 +101,11 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
   </tr>
   <tr>
     <td>s390x</td>
+    <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -115,6 +124,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
   </tr>
   <tr>
     <td>i686</td>
@@ -125,9 +135,11 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
   </tr>
   <tr>
     <td>armv7l</td>
+    <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -145,9 +157,11 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
   </tr>
   <tr>
     <td>riscv64</td>
+    <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -165,9 +179,11 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
   </tr>
   <tr>
     <td>s390x</td>
+    <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -187,9 +203,11 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
   </tr>
   <tr>
     <td>x86_64</td>
+    <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -207,11 +225,13 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
     <td></td>
     <td>✓</td>
   </tr>
   <tr>
     <td>x86_64</td>
+    <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
@@ -231,6 +251,7 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
   </tr>
   <tr>
     <td>OpenBSD<sup>3</sup></td>
@@ -243,11 +264,13 @@ Precompiled OpenSSL for CI builds (as a dependency of other projects).
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
+    <td>✓</td>
   </tr>
   <tr>
     <td>NetBSD<sup>3</sup></td>
     <td>9</td>
     <td>x86_64</td>
+    <td>✓</td>
     <td>✓</td>
     <td>✓</td>
     <td>✓</td>
