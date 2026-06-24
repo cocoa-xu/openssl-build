@@ -48,7 +48,7 @@ jobs:
             export PERFIX_DIR="/tmp/openssl-${TRIPLET}"
             mkdir -p "${PERFIX_DIR}"
             case "${OPENSSL_VERSION}" in
-              3.*)
+              3.*|4.*)
                 curl -fSL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz -o openssl-${OPENSSL_VERSION}.tar.gz
                 ;;
               1.1.1*)
@@ -63,7 +63,7 @@ jobs:
             rm -f openssl-${OPENSSL_VERSION}.tar.gz
             cd openssl-${OPENSSL_VERSION}
             case "${OPENSSL_VERSION}" in
-              3.*)
+              3.*|4.*)
                 ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests
                 ;;
               1.1.1*)

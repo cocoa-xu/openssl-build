@@ -74,7 +74,7 @@ jobs:
         run: |
           export BUILD_VERSION="${{ steps.build-check.outputs.version }}"
           export SRC_FILENAME="openssl-${BUILD_VERSION}.tar.gz"
-          if [[ "${BUILD_VERSION}" == 3.* ]]; then
+          if [[ "${BUILD_VERSION}" == 3.* || "${BUILD_VERSION}" == 4.* ]]; then
             curl -fSL "https://www.openssl.org/source/${SRC_FILENAME}" -o "${SRC_FILENAME}"
           elif [[ "${BUILD_VERSION}" == 1.1.1* ]]; then
             curl -fSL "https://openssl.org/source/old/1.1.1/${SRC_FILENAME}" -o "${SRC_FILENAME}"
@@ -99,7 +99,7 @@ jobs:
           tar -xzf "openssl-${OPENSSL_VERSION}.tar.gz"
           cd "openssl-${OPENSSL_VERSION}"
           mkdir build
-          if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
+          if [[ "${OPENSSL_VERSION}" == 3.* || "${OPENSSL_VERSION}" == 4.* ]]; then
             if [ "${{ matrix.job.arch }}" = "arm64" ]; then
               ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" darwin64-arm64 no-tests
             else

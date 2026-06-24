@@ -11,7 +11,7 @@ on:
       - "v*"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.openssl_verison }}
   cancel-in-progress: true
 
 permissions:
@@ -76,7 +76,7 @@ jobs:
           export OPENSSL_VERSION="${{ steps.build-check.outputs.version }}"
           echo "OpenSSL Version: $OPENSSL_VERSION"
           echo -n "$OPENSSL_VERSION" > /c/openssl_version.txt
-          if [[ "${OPENSSL_VERSION}" == 3.* ]]; then
+          if [[ "${OPENSSL_VERSION}" == 3.* || "${OPENSSL_VERSION}" == 4.* ]]; then
             curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
           elif [[ "${OPENSSL_VERSION}" == 1.1.1* ]]; then
             curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"

@@ -35,7 +35,7 @@ esac
 mkdir -p "${PERFIX_DIR}"
 cd /
 case $OPENSSL_VERSION in
-  3.* )
+  3.* | 4.* )
     curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
     ;;
   1.1.1* )
@@ -55,7 +55,7 @@ cd "openssl-${OPENSSL_VERSION}"
 case $TRIPLET in
   riscv64-* )
     case $OPENSSL_VERSION in
-      3.* )
+      3.* | 4.* )
         sed -i 's/csrr $ret, vlenb/csrr $ret, 0xC22/' crypto/riscv32cpuid.pl crypto/riscv64cpuid.pl
         ;;
     esac
@@ -63,7 +63,7 @@ case $TRIPLET in
 esac
 
 case $OPENSSL_VERSION in
-  3.* )
+  3.* | 4.* )
     case $TRIPLET in
       armv7l-linux-*eabihf )
         ./Configure --prefix="${PERFIX_DIR}" --openssldir="${PERFIX_DIR}" no-tests linux-generic32 -march=armv7-a

@@ -130,7 +130,7 @@ jobs:
         run: |
           export BUILD_VERSION="${{ steps.build-check.outputs.version }}"
           export SRC_FILENAME="openssl-${BUILD_VERSION}.tar.gz"
-          if [[ "${BUILD_VERSION}" == 3.* ]]; then
+          if [[ "${BUILD_VERSION}" == 3.* || "${BUILD_VERSION}" == 4.* ]]; then
             curl -fSL "https://www.openssl.org/source/${SRC_FILENAME}" -o "${SRC_FILENAME}"
           elif [[ "${BUILD_VERSION}" == 1.1.1* ]]; then
             curl -fSL "https://openssl.org/source/old/1.1.1/${SRC_FILENAME}" -o "${SRC_FILENAME}"
