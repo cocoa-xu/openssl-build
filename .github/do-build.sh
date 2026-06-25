@@ -55,6 +55,9 @@ cd "openssl-${OPENSSL_VERSION}"
 case $TRIPLET in
   riscv64-* )
     case $OPENSSL_VERSION in
+      3.0.* )
+        # 3.0.x predates the RISC-V CPUID asm; no vlenb to rewrite
+        ;;
       3.* | 4.* )
         sed -i 's/csrr $ret, vlenb/csrr $ret, 0xC22/' crypto/riscv32cpuid.pl crypto/riscv64cpuid.pl
         ;;

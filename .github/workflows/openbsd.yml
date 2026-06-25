@@ -71,6 +71,15 @@ jobs:
                 ;;
             esac
 
+            # 3.0.x links BSD shared objects with -Wl,-z,defs, which fails on
+            # OpenBSD with undefined memset/memcpy; 3.5+ dropped it via
+            # bsd-gcc-nodef-shared. Strip it for 3.0.x.
+            case "${OPENSSL_VERSION}" in
+              3.0.*)
+                perl -pi -e 's/-Wl,-z,defs//g' Makefile
+                ;;
+            esac
+
             make -j$(getconf NPROCESSORS_ONLN)
             make -j$(getconf NPROCESSORS_ONLN) install_sw
             make -j$(getconf NPROCESSORS_ONLN) install_ssldirs
