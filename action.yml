@@ -1,0 +1,88 @@
+name: 'Setup OpenSSL'
+description: 'Download and optionally install a precompiled OpenSSL for the current runner from cocoa-xu/openssl-build.'
+author: 'cocoa-xu'
+branding:
+  icon: 'lock'
+  color: 'purple'
+
+inputs:
+  openssl_version:
+    description: >-
+      OpenSSL version or requirement. An exact version (e.g. "3.6.3" or
+      "1.1.1w") matches that release exactly; an Elixir-style requirement
+      resolves to the highest available release that satisfies it: "~> 3"
+      (any 3.x), "~> 3.5" (>= 3.5, < 4), ">= 3.4.0", "< 4", etc. Letter
+      releases such as 1.1.1w must be pinned exactly.
+    required: false
+  openssl-version:
+    description: 'Alias for openssl_version.'
+    required: false
+  triplet:
+    description: >-
+      Override the auto-detected ARCH-OS-ABI triplet, e.g. "x86_64-linux-gnu",
+      "aarch64-linux-musl", "arm64-apple-darwin", "shared-x86_64-windows-msvc",
+      "x86_64-unknown-freebsd" (or a legacy "...-freebsd13" for old releases).
+    required: false
+  linkage:
+    description: 'Windows only: "shared" or "static". Ignored when triplet is set or off Windows.'
+    required: false
+    default: 'shared'
+  install-dir:
+    description: 'Directory to install (extract) OpenSSL into, or to download the archive into when download-only is true.'
+    required: false
+    default: '.openssl'
+  add-to-path:
+    description: 'Append the OpenSSL bin directory to PATH (via GITHUB_PATH).'
+    required: false
+    default: 'true'
+  download-only:
+    description: 'Only download (and checksum-verify) the archive; skip extraction and environment setup.'
+    required: false
+    default: 'false'
+  repository:
+    description: 'The openssl-build repository to download releases from.'
+    required: false
+    default: 'cocoa-xu/openssl-build'
+  token:
+    description: 'Token used to list releases when resolving a requirement (exact versions need no token).'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  openssl-version:
+    description: 'The concrete OpenSSL version that was resolved.'
+    value: ${{ steps.install.outputs.openssl-version }}
+  triplet:
+    description: 'The ARCH-OS-ABI triplet that was used.'
+    value: ${{ steps.install.outputs.triplet }}
+  install-dir:
+    description: 'Absolute path the archive was extracted to (install mode).'
+    value: ${{ steps.install.outputs.install-dir }}
+  openssl-dir:
+    description: 'Absolute install prefix, also exported as OPENSSL_DIR / OPENSSL_ROOT_DIR.'
+    value: ${{ steps.install.outputs.openssl-dir }}
+  bindir:
+    description: 'Absolute path of the OpenSSL bin directory (added to PATH).'
+    value: ${{ steps.install.outputs.bindir }}
+  libdir:
+    description: 'Absolute path of the OpenSSL lib directory.'
+    value: ${{ steps.install.outputs.libdir }}
+  archive-path:
+    description: 'Absolute path of the downloaded archive (download-only mode).'
+    value: ${{ steps.install.outputs.archive-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: install
+      shell: bash
+      run: bash "${{ github.action_path }}/install-openssl.sh"
+      env:
+        INPUT_OPENSSL_VERSION: ${{ inputs.openssl_version || inputs.openssl-version }}
+        INPUT_TRIPLET: ${{ inputs.triplet }}
+        INPUT_LINKAGE: ${{ inputs.linkage }}
+        INPUT_INSTALL_DIR: ${{ inputs.install-dir }}
+        INPUT_ADD_TO_PATH: ${{ inputs.add-to-path }}
+        INPUT_DOWNLOAD_ONLY: ${{ inputs.download-only }}
+        INPUT_REPOSITORY: ${{ inputs.repository }}
+        INPUT_TOKEN: ${{ inputs.token }}
