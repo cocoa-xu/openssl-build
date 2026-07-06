@@ -2,6 +2,104 @@
 
 Precompiled OpenSSL for CI builds (as a dependency of other projects).
 
+## GitHub Action
+
+This repo ships a composite action that resolves an OpenSSL version, downloads
+the matching precompiled build for the current runner, and (by default)
+installs it — adding `bin` to `PATH` and exporting `OPENSSL_DIR`,
+`OPENSSL_ROOT_DIR`, `OPENSSL_LIB_DIR`, `OPENSSL_INCLUDE_DIR` and
+`PKG_CONFIG_PATH`.
+
+```yaml
+- uses: cocoa-xu/openssl-build@main
+  with:
+    openssl-version: "3.6.3"
+- run: openssl version   # now on PATH
+```
+
+> The repo's `v*` tags are OpenSSL release markers, not action versions —
+> reference the action at `@main` (or a commit SHA).
+
+Version resolution follows Elixir's requirement syntax: an exact version matches
+that release; a requirement resolves to the highest available release that
+satisfies it.
+
+| `openssl-version` | resolves to |
+|---|---|
+| `3.6.3` | exactly 3.6.3 |
+| `~> 3.5` | highest `3.x` `>= 3.5.0` |
+| `~> 3.5.0` | highest `3.5.x` |
+| `>= 3.4.0` | highest release `>= 3.4.0` |
+| `< 4` | highest release below `4.0.0` |
+
+Letter releases such as `1.1.1w` are outside the numeric range space and must be
+pinned exactly.
+
+### Inputs
+
+| Input | Default | Description |
+|---|---|---|
+| `openssl-version` | — | Version or Elixir-style requirement (required). `openssl_version` is an accepted alias. |
+| `triplet` | auto | Override the auto-detected `ARCH-OS-ABI` triplet (any value from the availability table). |
+| `linkage` | `shared` | Windows only: `shared` or `static`. |
+| `install-dir` | `.openssl` | Where to extract OpenSSL (or where to save the archive when `download-only`). |
+| `add-to-path` | `true` | Append `<install-dir>/bin` to `PATH`. |
+| `download-only` | `false` | Only download + checksum-verify the archive; skip extraction and env setup. |
+| `repository` | `cocoa-xu/openssl-build` | Release source repository. |
+| `token` | `${{ github.token }}` | Token for listing releases when resolving a requirement. |
+
+### Outputs
+
+| Output | Description |
+|---|---|
+| `openssl-version` | The concrete version that was resolved. |
+| `triplet` | The triplet that was used. |
+| `install-dir` / `openssl-dir` | Absolute install prefix (install mode). |
+| `bindir` / `libdir` | Absolute `bin` / `lib` directories. |
+| `archive-path` | Absolute path of the downloaded archive (`download-only` mode). |
+
+### Examples
+
+Pin a requirement into a custom prefix and hand it to CMake:
+
+```yaml
+- uses: cocoa-xu/openssl-build@main
+  with:
+    openssl-version: "~> 3.6"
+    install-dir: ${{ runner.temp }}/openssl
+- run: cmake -B build   # OPENSSL_ROOT_DIR is already exported
+```
+
+Windows, static libraries:
+
+```yaml
+- uses: cocoa-xu/openssl-build@main
+  with:
+    openssl-version: "3.6.3"
+    linkage: static
+```
+
+Download the archive only (no install), e.g. to cache or repackage it:
+
+```yaml
+- uses: cocoa-xu/openssl-build@main
+  id: ossl
+  with:
+    openssl-version: "3.6.3"
+    download-only: true
+- run: echo "got ${{ steps.ossl.outputs.archive-path }}"
+```
+
+Force a specific triplet — e.g. an old FreeBSD release whose asset name carried
+the OS version:
+
+```yaml
+- uses: cocoa-xu/openssl-build@main
+  with:
+    openssl-version: "3.2.0"
+    triplet: x86_64-unknown-freebsd13
+```
+
 <table>
 <thead>
   <tr>
