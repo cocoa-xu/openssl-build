@@ -1,0 +1,82 @@
+name: test-action
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'action.yml'
+      - 'install-openssl.sh'
+      - '.github/workflows/test-action.yml'
+  pull_request:
+    paths:
+      - 'action.yml'
+      - 'install-openssl.sh'
+      - '.github/workflows/test-action.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.runs-on }} (${{ matrix.openssl }}${{ matrix.linkage && format(' {0}', matrix.linkage) || '' }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runs-on: ubuntu-latest,    openssl: '3.6.3' }
+          - { runs-on: ubuntu-latest,    openssl: '~> 3.5' }
+          - { runs-on: ubuntu-24.04-arm, openssl: '~> 3.6' }
+          - { runs-on: macos-14,         openssl: '~> 3.6' }
+          - { runs-on: macos-15-intel,   openssl: '>= 3.4' }
+          - { runs-on: windows-latest,   openssl: '3.6.3' }
+          - { runs-on: windows-latest,   openssl: '3.6.3', linkage: static }
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup OpenSSL
+        id: ossl
+        uses: ./
+        with:
+          openssl-version: ${{ matrix.openssl }}
+          linkage: ${{ matrix.linkage }}
+      - name: Verify
+        shell: bash
+        run: |
+          echo "requested '${{ matrix.openssl }}' -> resolved '${{ steps.ossl.outputs.openssl-version }}' (${{ steps.ossl.outputs.triplet }})"
+          which openssl
+          DYLD_LIBRARY_PATH="${OPENSSL_LIB_DIR}:${DYLD_LIBRARY_PATH:-}" \
+          LD_LIBRARY_PATH="${OPENSSL_LIB_DIR}:${LD_LIBRARY_PATH:-}" \
+            openssl version
+          test -f "$OPENSSL_DIR/include/openssl/ssl.h"
+
+  test-download-only:
+    name: download-only (ubuntu-latest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download OpenSSL archive
+        id: ossl
+        uses: ./
+        with:
+          openssl-version: '~> 3.6'
+          download-only: true
+          install-dir: ${{ runner.temp }}/ossl-dl
+      - name: Verify
+        shell: bash
+        run: |
+          test -f "${{ steps.ossl.outputs.archive-path }}"
+          echo "downloaded ${{ steps.ossl.outputs.openssl-version }} to ${{ steps.ossl.outputs.archive-path }}"
+
+  test-musl:
+    # Local actions (uses: ./) don't path-map into container jobs, so run the
+    # script directly to exercise the musl triplet detection + download.
+    name: alpine musl (3.6.3)
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    steps:
+      - run: apk add --no-cache bash curl tar grep git
+      - uses: actions/checkout@v4
+      - name: Setup OpenSSL
+        run: INPUT_OPENSSL_VERSION='3.6.3' INPUT_INSTALL_DIR="$PWD/.openssl" bash install-openssl.sh
+      - name: Verify
+        shell: bash
+        run: |
+          LD_LIBRARY_PATH="$PWD/.openssl/lib64:$PWD/.openssl/lib" "$PWD/.openssl/bin/openssl" version
