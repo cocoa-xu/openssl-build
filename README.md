@@ -1,6 +1,14 @@
 # openssl-build
 
-Precompiled OpenSSL for CI builds (as a dependency of other projects).
+Precompiled OpenSSL binaries for CI, published across a wide matrix of
+OS / ABI / architecture targets (see [Availability](#availability)). Built as a
+dependency of other projects; consume them either through the bundled
+[GitHub Action](#github-action) or by [downloading](#direct-download) the
+release archives directly.
+
+- [GitHub Action](#github-action) — resolve a version, download, and install
+- [Direct download](#direct-download) — release URL scheme + archive layout
+- [Availability](#availability) — supported version / OS / ABI / arch matrix
 
 ## GitHub Action
 
@@ -99,6 +107,37 @@ the OS version:
     openssl-version: "3.2.0"
     triplet: x86_64-unknown-freebsd13
 ```
+
+## Direct download
+
+Every build is a GitHub release asset named `openssl-<triplet>.tar.gz`, under a
+`v<version>` tag:
+
+```
+https://github.com/cocoa-xu/openssl-build/releases/download/v<version>/openssl-<triplet>.tar.gz
+```
+
+`<triplet>` is an `ARCH-OS-ABI` string from the [Availability](#availability)
+table — e.g. `x86_64-linux-gnu`, `aarch64-linux-musl`, `arm64-apple-darwin`,
+`shared-x86_64-windows-msvc`, or `x86_64-unknown-freebsd`. Each archive has a
+companion `.tar.gz.sha256` (Windows builds have none; NetBSD's is currently
+empty).
+
+```bash
+# x86_64 glibc Linux, OpenSSL 3.6.3
+curl -fSL https://github.com/cocoa-xu/openssl-build/releases/download/v3.6.3/openssl-x86_64-linux-gnu.tar.gz -o openssl.tar.gz
+mkdir -p openssl && tar -xzf openssl.tar.gz -C openssl
+openssl/bin/openssl version
+```
+
+Archives unpack flat — the extraction root **is** the install prefix (built with
+`--prefix` == `--openssldir`):
+
+```
+bin/  include/  lib/ (or lib64/ on glibc targets)  certs/  misc/  private/  openssl.cnf  ...
+```
+
+## Availability
 
 <table>
 <thead>
