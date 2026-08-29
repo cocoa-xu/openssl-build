@@ -54,10 +54,10 @@ jobs:
             done
             case "${OPENSSL_VERSION}" in
               3.*|4.*)
-                curl -fSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                curl -fSL --retry 5 --retry-delay 5 "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
                 ;;
               1.1.1*)
-                curl -fSL "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
+                curl -fSL --retry 5 --retry-delay 5 "https://openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz" -o "openssl-${OPENSSL_VERSION}.tar.gz"
                 ;;
               *)
                 echo "Unsupported version: ${OPENSSL_VERSION}"
