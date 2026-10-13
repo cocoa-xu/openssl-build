@@ -120,8 +120,8 @@ https://github.com/cocoa-xu/openssl-build/releases/download/v<version>/openssl-<
 `<triplet>` is an `ARCH-OS-ABI` string from the [Availability](#availability)
 table — e.g. `x86_64-linux-gnu`, `aarch64-linux-musl`, `arm64-apple-darwin`,
 `shared-x86_64-windows-msvc`, or `x86_64-unknown-freebsd`. Each archive has a
-companion `.tar.gz.sha256` (Windows builds have none; NetBSD's is currently
-empty).
+companion `.tar.gz.sha256` (Windows builds have none; older NetBSD releases
+have empty checksums).
 
 ```bash
 # x86_64 glibc Linux, OpenSSL 3.6.3

@@ -30,14 +30,16 @@ jobs:
           else
             export BUILD_VERSION_V="${{ inputs.verison }}"
           fi
-          echo "version=${BUILD_VERSION_V#v}" >> $GITHUB_OUTPUT
+          echo "version=${BUILD_VERSION_V#v}" >> "$GITHUB_OUTPUT"
 
       - name: Compile in NetBSD
         uses: vmactions/netbsd-vm@v1
         with:
           release: '9.4'
           usesh: true
+          sync: scp
           prepare: |
+            export PKG_PATH="https://archive.netbsd.org/pub/pkgsrc-archive/packages/NetBSD/x86_64/9.0_2026Q2/All"
             /usr/sbin/pkg_add curl perl
             [ -x /usr/pkg/sbin/mozilla-rootcerts ] || /usr/sbin/pkg_add mozilla-rootcerts
             /usr/pkg/sbin/mozilla-rootcerts install || true
@@ -82,7 +84,7 @@ jobs:
             cd "${PERFIX_DIR}"
             tar -czf "${ROOT_DIR}/openssl-${TRIPLET}.tar.gz" .
             cd "${ROOT_DIR}"
-            printf '%s  %s\n' "$(sha256 -q "openssl-${TRIPLET}.tar.gz")" "openssl-${TRIPLET}.tar.gz" | tee "openssl-${TRIPLET}.tar.gz.sha256"
+            cksum -a SHA256 -n "openssl-${TRIPLET}.tar.gz" > "openssl-${TRIPLET}.tar.gz.sha256"
 
       - name: Upload binaries
         uses: softprops/action-gh-release@v3
