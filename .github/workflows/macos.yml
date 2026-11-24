@@ -29,12 +29,15 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.job.target }}-${{ inputs.verison }}
       cancel-in-progress: true
+    # Without it, the libraries require the macOS version of the runner.
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "11.0"
     strategy:
       fail-fast: false
       matrix:
         job:
           - { target: "x86_64-apple-darwin", arch: "x86_64", runs-on: macos-15-intel }
-          - { target: "arm64-apple-darwin", arch: "arm64", runs-on: macos-14 }
+          - { target: "arm64-apple-darwin", arch: "arm64", runs-on: macos-15 }
 
     name: ${{ matrix.job.arch }}-apple-darwin
 
