@@ -66,8 +66,7 @@ jobs:
           echo "downloaded ${{ steps.ossl.outputs.openssl-version }} to ${{ steps.ossl.outputs.archive-path }}"
 
   test-musl:
-    # Local actions (uses: ./) don't path-map into container jobs, so run the
-    # script directly to exercise the musl triplet detection + download.
+    # Runs the action inside a container, where only GITHUB_ACTION_PATH points at it.
     name: alpine musl (3.6.3)
     runs-on: ubuntu-latest
     container: alpine:latest
@@ -75,7 +74,9 @@ jobs:
       - run: apk add --no-cache bash curl tar grep git
       - uses: actions/checkout@v4
       - name: Setup OpenSSL
-        run: INPUT_OPENSSL_VERSION='3.6.3' INPUT_INSTALL_DIR="$PWD/.openssl" bash install-openssl.sh
+        uses: ./
+        with:
+          openssl-version: '3.6.3'
       - name: Verify
         shell: bash
         run: |
