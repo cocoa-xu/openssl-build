@@ -76,7 +76,8 @@ runs:
   steps:
     - id: install
       shell: bash
-      run: bash "${{ github.action_path }}/install-openssl.sh"
+      # github.action_path is the host path; GITHUB_ACTION_PATH is mapped into container jobs.
+      run: bash "$GITHUB_ACTION_PATH/install-openssl.sh"
       env:
         INPUT_OPENSSL_VERSION: ${{ inputs.openssl_version || inputs.openssl-version }}
         INPUT_TRIPLET: ${{ inputs.triplet }}
