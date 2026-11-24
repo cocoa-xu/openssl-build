@@ -148,14 +148,15 @@ jobs:
         if: steps.build-check.outputs.build == 'true'
         uses: actions/checkout@v4
 
+      # Ubuntu 26.04 runners have no qemu-user-static package.
+      - name: Set up QEMU
+        if: steps.build-check.outputs.build == 'true'
+        uses: docker/setup-qemu-action@v4
+
       - name: Pull docker image
         if: steps.build-check.outputs.build == 'true'
         run: |
           sudo docker pull --platform="${{ matrix.job.platform }}" "${{ steps.build-check.outputs.image }}"
-          if [ "${{ matrix.job.arch }}" != "$(uname -m)" ]; then
-            sudo apt-get update
-            sudo apt-get install -y binfmt-support qemu-user-static
-          fi
           sudo docker image ls "${{ steps.build-check.outputs.image }}"
 
       - name: Compile
