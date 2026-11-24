@@ -50,7 +50,7 @@ permissions:
 
 jobs:
   linux-glibc:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.job.arch == 'aarch64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.job.target }}-${{ inputs.verison }}
       cancel-in-progress: true
