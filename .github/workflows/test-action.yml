@@ -24,7 +24,7 @@ jobs:
           - { runs-on: ubuntu-latest,    openssl: '3.6.3' }
           - { runs-on: ubuntu-latest,    openssl: '~> 3.5' }
           - { runs-on: ubuntu-24.04-arm, openssl: '~> 3.6' }
-          - { runs-on: macos-14,         openssl: '~> 3.6' }
+          - { runs-on: macos-15,         openssl: '~> 3.6' }
           - { runs-on: macos-15-intel,   openssl: '>= 3.4' }
           - { runs-on: windows-latest,   openssl: '3.6.3' }
           - { runs-on: windows-latest,   openssl: '3.6.3', linkage: static }
